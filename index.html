@@ -128,8 +128,8 @@
   </footer>
 
   <script>
-    // FIX: Previous error came from malformed DATA object (extra items outside the array).
-    // Cleaned the structure and preserved behavior. Added more tests below.
+    // Clean rewrite to fix: Unexpected token '.' inside setActive and duplicate DOMContentLoaded logic.
+    // Behavior preserved. Added smooth-scroll to content.
 
     // --- Sample data in-page (edit this for your community) ---
     const DATA = {
@@ -184,6 +184,19 @@
     // --- Helpers ---
     const $ = sel => document.querySelector(sel);
 
+    function prefersReduced(){
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function scrollToDynamic(){
+      const target = document.getElementById('dynamic');
+      if (!target) return;
+      const header = document.querySelector('header');
+      const offset = (header ? header.offsetHeight : 0) + 8;
+      const y = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: y, behavior: prefersReduced() ? 'auto' : 'smooth' });
+    }
+
     function renderCards(){
       const cards = $('#cards');
       cards.innerHTML = '';
@@ -198,7 +211,10 @@
         ['opps','Growth','Opportunities'],
         ['help','Urgent','Ask for Help']
       ];
-      for (const [key, tag, title] of order){
+      for (const tup of order){
+        const key = tup[0];
+        const tag = tup[1];
+        const title = tup[2];
         const a = document.createElement('a');
         a.href = `#${key}`;
         a.className = 'card';
@@ -209,8 +225,12 @@
     }
 
     function setActive(key){
-      activeKey = key; location.hash = key; renderSection();
-      $('#announcement').textContent = `📣 Viewing: ${capitalize(key)}. Use the search bar to find items quickly.`;
+      activeKey = key;
+      location.hash = key;
+      renderSection();
+      const ann = $('#announcement');
+      if (ann) ann.textContent = `📣 Viewing: ${capitalize(key)}. Use the search bar to find items quickly.`;
+      scrollToDynamic();
     }
 
     function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
@@ -270,7 +290,8 @@
       items.forEach(it => {
         const div = document.createElement('div');
         div.className = 'item';
-        div.innerHTML = `<h3>${it.t||''}</h3><p>${it.d||''}</p>${it.link?`<a href="${it.link}" target="_blank" rel="noopener">Open link →</a>`:''}`;
+        const linkHTML = it.link ? `<a href="${it.link}" target="_blank" rel="noopener">Open link →</a>` : '';
+        div.innerHTML = `<h3>${it.t||''}</h3><p>${it.d||''}</p>${linkHTML}`;
         list.appendChild(div);
       });
       if (!items.length){
@@ -290,8 +311,10 @@
           await navigator.share({ title: document.title, text: 'Taaibosch Community Hub — Youth Updates', url: location.href });
         } else {
           await navigator.clipboard.writeText(location.href);
-          shareBtn.textContent = 'Link Copied';
-          setTimeout(()=> shareBtn.textContent='Share', 1600);
+          if (shareBtn) {
+            shareBtn.textContent = 'Link Copied';
+            setTimeout(()=> shareBtn.textContent='Share', 1600);
+          }
         }
       }catch(e){ console.warn(e); }
     }
@@ -315,11 +338,14 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('year').textContent = new Date().getFullYear();
+      const y = document.getElementById('year');
+      if (y) y.textContent = new Date().getFullYear();
       renderCards();
       setActive(activeKey);
-      document.getElementById('shareBtn').addEventListener('click', doShare);
-      document.getElementById('search').addEventListener('input', (e)=>{ query = e.target.value.toLowerCase().trim(); renderSection(); });
+      const share = document.getElementById('shareBtn');
+      if (share) share.addEventListener('click', doShare);
+      const s = document.getElementById('search');
+      if (s) s.addEventListener('input', (e)=>{ query = (e.target.value||'').toLowerCase().trim(); renderSection(); });
 
       const params = new URLSearchParams(location.search);
       if (params.get('test') !== '0'){
@@ -328,7 +354,7 @@
       }
     });
 
-    window.addEventListener('hashchange', () => setActive(location.hash.replace('#','')||'news'));
+    window.addEventListener('hashchange', () => { setActive(location.hash.replace('#','')||'news'); });
   </script>
 </body>
 </html>
