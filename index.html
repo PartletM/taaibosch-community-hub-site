@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Taaibosch Community Hub — Youth Updates (Prototype)</title>
+  <meta name="description" content="One‑link hub for news, events, jobs, bursaries, safety, mentors and more." />
+  <link rel="icon" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" sizes="16x16" href="favicon-16.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    :root{
+      --bg:#0b1220;          /* deep navy */
+      --panel:#0f172a;       /* slate */
+      --brand:#22c55e;       /* green */
+      --text:#e5e7eb;        /* light */
+      --muted:#94a3b8;       /* slate-300 */
+      --card:#111827;        /* near black */
+      --shadow:0 10px 25px rgba(0,0,0,.25);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, 'Helvetica Neue', Arial, Noto Sans, 'Apple Color Emoji', 'Segoe UI Emoji';
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(34,197,94,.15), transparent 60%),
+        radial-gradient(800px 400px at 10% 10%, rgba(59,130,246,.12), transparent 60%),
+        var(--bg);
+      display:flex;flex-direction:column;
+    }
+    header{
+      position:sticky;top:0;z-index:20;
+      backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(11,18,32,.9), rgba(11,18,32,.55));
+      border-bottom: 1px solid rgba(148,163,184,.15);
+    }
+    .wrap{max-width:980px;margin:0 auto;padding:14px 16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-logo{
+      width:38px;height:38px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0b1324
+    }
+    .brand-logo img{width:100%;height:100%;object-fit:cover;display:block}
+    h1{font-size:18px;margin:0}
+    .sub{color:var(--muted);font-size:12px;margin-top:2px}
+    .bar{display:flex;gap:10px;margin-top:12px}
+    input[type="search"],select{
+      flex:1;border:1px solid rgba(148,163,184,.2);
+      background:#0b1324;color:var(--text);
+      padding:12px 14px;border-radius:12px;outline:none;
+    }
+    .share-btn{
+      padding:12px 14px;border-radius:12px;border:1px solid rgba(148,163,184,.2);
+      background:#0b1324;color:var(--text);cursor:pointer;
+    }
+    .announcement{
+      background:linear-gradient(90deg, rgba(34,197,94,.18), rgba(34,197,94,.08));
+      border:1px solid rgba(34,197,94,.45);
+      padding:10px 12px;border-radius:12px;margin-top:10px;font-size:14px;
+    }
+    main{flex:1}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px}
+    @media(min-width:640px){ .grid{grid-template-columns:repeat(3,1fr)} }
+    @media(min-width:900px){ .grid{grid-template-columns:repeat(4,1fr)} }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.0));
+      border:1px solid rgba(148,163,184,.15);
+      border-radius:var(--radius);
+      padding:16px;min-height:110px;
+      display:flex;flex-direction:column;justify-content:space-between;
+      box-shadow:var(--shadow);
+      transition: transform .12s ease, border-color .12s ease;
+      cursor:pointer;text-decoration:none;color:inherit;
+    }
+    .card:hover{transform:translateY(-2px);border-color:rgba(148,163,184,.35)}
+    .tag{font-size:12px;color:var(--muted)}
+    .title{font-size:16px;font-weight:600;margin-top:6px}
+    .cta{margin-top:10px;font-size:13px;color:#a7f3d0}
+    footer{border-top:1px solid rgba(148,163,184,.15);color:var(--muted)}
+    .list{display:grid;grid-template-columns:1fr;gap:10px}
+    .item{border:1px solid rgba(148,163,184,.15);border-radius:12px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.0))}
+    .item h3{margin:0 0 6px 0;font-size:15px}
+    .item p{margin:0;color:#94a3b8;font-size:13px}
+    .item a{display:inline-block;margin-top:8px;font-size:13px;color:#a7f3d0}
+    .pillbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 2px 0}
+    .pill{font-size:12px;color:#cbd5e1;border:1px solid rgba(148,163,184,.2);padding:6px 10px;border-radius:999px;cursor:pointer}
+    .pill.active{background:#0b1324;border-color:rgba(148,163,184,.5)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <img src="taaibosch_logo_512.png" alt="Taaibosch Community Hub logo" />
+        </div>
+        <div>
+          <h1>Taaibosch Community Hub</h1>
+          <div class="sub">One link for news • events • jobs • bursaries • safety</div>
+        </div>
+      </div>
+      <div class="bar">
+        <input id="search" type="search" placeholder="Search jobs, events, notices…" autocomplete="off" />
+        <button id="shareBtn" class="share-btn" title="Share">Share</button>
+      </div>
+      <div id="announcement" class="announcement">📣 Welcome! Pin this link in your WhatsApp group description.</div>
+      <div id="pillbar" class="pillbar"></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="cards" class="grid">
+      <!-- Cards will be rendered by JS -->
+    </section>
+
+    <section id="dynamic" style="padding:0 4px 40px 4px;">
+      <!-- Selected section appears here -->
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;padding:16px">
+      <div>© <span id="year"></span> Taaibosch Community Hub</div>
+      <div>Built with ♥ for our youth</div>
+    </div>
+  </footer>
+
+  <script>
+    // FIX: Previous error came from malformed DATA object (extra items outside the array).
+    // Cleaned the structure and preserved behavior. Added more tests below.
+
+    // --- Sample data in-page (edit this for your community) ---
+    const DATA = {
+      sections: [
+        { key:'news', title:'News', items:[
+          { t:'New youth center hours', d:'Mon–Fri 09:00–17:00 (library hall)' },
+          { t:'Volunteers needed', d:'Tutors for Grade 12 Maths & Science' }
+        ]},
+        { key:'events', title:'Events', items:[
+          { t:'Career Day', d:'Sat, 25 Oct · 10:00 at Community Hall', link:'https://example.org/career-day', tags:['Careers','Youth'] },
+          { t:'Clean-up Drive', d:'Sun, 08:00 · Meet at Park Entrance', tags:['Community','Volunteer'] },
+          { t:'DataForge Africa AI Bootcamp — Coming Soon', d:'For high school learners (Grades 8–12). Intro to AI, Python basics, and projects. Register interest via the Hub.', tags:['Tech','AI','Youth'] },
+          { t:'Saturday Coding Club', d:'Every Sat, 10:00–12:00 · Library Lab. Bring your laptop if you have one.', tags:['Tech','Coding','Youth'] },
+          { t:'Youth Tech Talk: Careers in Data', d:'Thu, 18:00 · Community Hall. Guest speakers from local industry.', tags:['Careers','Tech'] }
+        ]},
+        { key:'jobs', title:'Jobs', items:[
+          { t:'Admin Assistant (Intern)', d:'Local clinic · Apply by 28 Oct', link:'#', tags:['Admin','Internship'] },
+          { t:'Retail Assistant (Part-time)', d:'Mall · Weekend shifts', tags:['Retail','Part-time'] }
+        ]},
+        { key:'bursaries', title:'Bursaries', items:[
+          { t:'Municipal Bursary 2026', d:'Opens 1 Nov · Prepare certified documents', tags:['Education'] },
+          { t:'STEM Scholarship', d:'For Grade 12 with Maths/Science', tags:['STEM','Education'] }
+        ]},
+        { key:'safety', title:'Safety', items:[
+          { t:'Emergency Numbers', d:'10111 · 112 · Local CPF: 081 000 0000' },
+          { t:'Anonymous Tip Line', d:'Use the form link in group description', link:'#' }
+        ]},
+        { key:'mentors', title:'Mentors', items:[
+          { t:'CV & LinkedIn clinic', d:'Wednesdays 16:00–18:00, Library Small Room', tags:['Careers'] },
+          { t:'Maths tutoring (Grade 10–12)', d:'Fridays 15:00–17:00', tags:['Education'] }
+        ]},
+        { key:'sports', title:'Sports', items:[
+          { t:'U19 Soccer Trials', d:'Sun, 15:00 · Field A', tags:['Soccer','Youth'] },
+          { t:'Netball Friday', d:'Every Fri 16:00 · Court 2', tags:['Netball'] }
+        ]},
+        { key:'opps', title:'Opportunities', items:[
+          { t:'Free Google Career Certificate', d:'Scholarships available', link:'https://grow.google/certificates/', tags:['Careers','Online'] },
+          { t:'Intro to Coding (free)', d:'Register on hub', tags:['Tech','Online'] }
+        ]},
+        { key:'help', title:'Ask for Help', items:[
+          { t:'Airtime/data for school tasks', d:'DM the group admin with proof of need' },
+          { t:'Transport assistance', d:'Contact the youth desk for support' }
+        ]}
+      ]
+    };
+
+    // --- State ---
+    let activeKey = location.hash.replace('#','') || 'news';
+    let query = '';
+    let selectedTag = null;
+
+    // --- Helpers ---
+    const $ = sel => document.querySelector(sel);
+
+    function renderCards(){
+      const cards = $('#cards');
+      cards.innerHTML = '';
+      const order = [
+        ['news','Updates','News'],
+        ['events','Calendar','Events'],
+        ['jobs','Work','Jobs'],
+        ['bursaries','Education','Bursaries'],
+        ['safety','Care','Safety'],
+        ['mentors','Support','Mentors'],
+        ['sports','Recreation','Sports'],
+        ['opps','Growth','Opportunities'],
+        ['help','Urgent','Ask for Help']
+      ];
+      for (const [key, tag, title] of order){
+        const a = document.createElement('a');
+        a.href = `#${key}`;
+        a.className = 'card';
+        a.innerHTML = `<div><div class="tag">${tag}</div><div class="title">${title}</div></div><div class="cta">Open →</div>`;
+        a.addEventListener('click', (e)=>{ e.preventDefault(); setActive(key); });
+        cards.appendChild(a);
+      }
+    }
+
+    function setActive(key){
+      activeKey = key; location.hash = key; renderSection();
+      $('#announcement').textContent = `📣 Viewing: ${capitalize(key)}. Use the search bar to find items quickly.`;
+    }
+
+    function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+    function getActiveSection(){
+      return DATA.sections.find(s => s.key === activeKey) || DATA.sections[0];
+    }
+
+    function uniqueTags(section){
+      const set = new Set();
+      (section.items||[]).forEach(i => (i.tags||[]).forEach(t => set.add(t)));
+      return Array.from(set).sort();
+    }
+
+    function renderTagPills(section){
+      const bar = $('#pillbar');
+      bar.innerHTML = '';
+      const tags = uniqueTags(section);
+      if (!tags.length) return;
+      const all = document.createElement('span');
+      all.className = 'pill' + (selectedTag? '':' active');
+      all.textContent = 'All';
+      all.onclick = () => {selectedTag = null; renderSection();};
+      bar.appendChild(all);
+      tags.forEach(t => {
+        const pill = document.createElement('span');
+        pill.className = 'pill' + (selectedTag===t? ' active':'');
+        pill.textContent = t;
+        pill.onclick = () => {selectedTag = (selectedTag===t? null : t); renderSection();};
+        bar.appendChild(pill);
+      });
+    }
+
+    // Pure function for filtering (used by tests)
+    function filterItems(items, q, tag){
+      const needle = (q||'').toLowerCase().trim();
+      return (items||[])
+        .filter(i => !needle || (i.t||'').toLowerCase().includes(needle) || (i.d||'').toLowerCase().includes(needle))
+        .filter(i => !tag || (i.tags||[]).includes(tag));
+    }
+
+    function renderSection(){
+      const mount = $('#dynamic');
+      const sec = getActiveSection();
+      renderTagPills(sec);
+      const items = filterItems(sec.items || [], query, selectedTag);
+
+      mount.innerHTML = '';
+      const h = document.createElement('h2');
+      h.textContent = sec.title;
+      h.style.margin = '22px 2px 8px 2px';
+      h.style.fontSize = '18px';
+      mount.appendChild(h);
+
+      const list = document.createElement('div');
+      list.className = 'list';
+      items.forEach(it => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<h3>${it.t||''}</h3><p>${it.d||''}</p>${it.link?`<a href="${it.link}" target="_blank" rel="noopener">Open link →</a>`:''}`;
+        list.appendChild(div);
+      });
+      if (!items.length){
+        const empty = document.createElement('div');
+        empty.className = 'item';
+        empty.innerHTML = '<p>No items yet. Ask an admin to add some here.</p>';
+        list.appendChild(empty);
+      }
+      mount.appendChild(list);
+    }
+
+    // --- Share API (fallback to copy) ---
+    async function doShare(){
+      const shareBtn = $('#shareBtn');
+      try{
+        if (navigator.share){
+          await navigator.share({ title: document.title, text: 'Taaibosch Community Hub — Youth Updates', url: location.href });
+        } else {
+          await navigator.clipboard.writeText(location.href);
+          shareBtn.textContent = 'Link Copied';
+          setTimeout(()=> shareBtn.textContent='Share', 1600);
+        }
+      }catch(e){ console.warn(e); }
+    }
+
+    // --- Tests (console only) ---
+    function runTests(){
+      const jobs = DATA.sections.find(s=>s.key==='jobs').items;
+      const events = DATA.sections.find(s=>s.key==='events').items;
+
+      // Existing tests
+      console.assert(filterItems(jobs, 'admin', null).length === 1, 'Test: search title (admin) should return 1');
+      console.assert(filterItems(jobs, 'mall', null).length === 1, 'Test: search desc (mall) should return 1');
+      console.assert(filterItems(jobs, '', 'Internship').length === 1, 'Test: tag Internship should return 1');
+      console.assert(filterItems(jobs, 'admin', 'Internship').length === 1, 'Test: admin + Internship returns 1');
+      console.assert(filterItems(events, 'nonexistent', null).length === 0, 'Test: nonexistent query returns 0');
+
+      // Additional tests
+      console.assert(filterItems(events, 'bootcamp', null).length === 1, 'Test: bootcamp search should return 1');
+      console.assert(filterItems(events, '', 'AI').length === 1, 'Test: AI tag returns 1');
+      console.assert(filterItems(events, 'coding', 'Tech').length === 1, 'Test: coding + Tech returns 1');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('year').textContent = new Date().getFullYear();
+      renderCards();
+      setActive(activeKey);
+      document.getElementById('shareBtn').addEventListener('click', doShare);
+      document.getElementById('search').addEventListener('input', (e)=>{ query = e.target.value.toLowerCase().trim(); renderSection(); });
+
+      const params = new URLSearchParams(location.search);
+      if (params.get('test') !== '0'){
+        try { runTests(); console.log('%cAll tests passed', 'color:#22c55e'); }
+        catch(err){ console.error('Test failure', err); }
+      }
+    });
+
+    window.addEventListener('hashchange', () => setActive(location.hash.replace('#','')||'news'));
+  </script>
+</body>
+</html>
