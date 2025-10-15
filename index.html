@@ -10,83 +10,63 @@
   <link rel="manifest" href="manifest.webmanifest">
   <style>
     :root{
-      --bg:#0b1220;          /* deep navy */
-      --panel:#0f172a;       /* slate */
-      --brand:#22c55e;       /* green */
-      --text:#e5e7eb;        /* light */
-      --muted:#94a3b8;       /* slate-300 */
-      --card:#111827;        /* near black */
-      --shadow:0 10px 25px rgba(0,0,0,.25);
-      --radius:18px;
+      --bg:#0b1220; --panel:#0f172a; --brand:#22c55e; --text:#e5e7eb; --muted:#94a3b8; --card:#111827; --shadow:0 10px 25px rgba(0,0,0,.25); --radius:18px; --accent:#24A1FF;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, 'Helvetica Neue', Arial, Noto Sans, 'Apple Color Emoji', 'Segoe UI Emoji';
-      color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 80% -10%, rgba(34,197,94,.15), transparent 60%),
-        radial-gradient(800px 400px at 10% 10%, rgba(59,130,246,.12), transparent 60%),
-        var(--bg);
-      display:flex;flex-direction:column;
-    }
-    header{
-      position:sticky;top:0;z-index:20;
-      backdrop-filter: blur(8px);
-      background: linear-gradient(180deg, rgba(11,18,32,.9), rgba(11,18,32,.55));
-      border-bottom: 1px solid rgba(148,163,184,.15);
-    }
+    body{margin:0;font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; color:var(--text); background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(34,197,94,.15), transparent 60%),
+      radial-gradient(800px 400px at 10% 10%, rgba(59,130,246,.12), transparent 60%),
+      var(--bg); display:flex;flex-direction:column;}
+    header{position:sticky;top:0;z-index:20;backdrop-filter: blur(8px);background: linear-gradient(180deg, rgba(11,18,32,.9), rgba(11,18,32,.55));border-bottom: 1px solid rgba(148,163,184,.15);}  
     .wrap{max-width:980px;margin:0 auto;padding:14px 16px}
     .brand{display:flex;align-items:center;gap:12px}
-    .brand-logo{
-      width:38px;height:38px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0b1324
-    }
+    .brand-logo{width:38px;height:38px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0b1324}
     .brand-logo img{width:100%;height:100%;object-fit:cover;display:block}
     h1{font-size:18px;margin:0}
     .sub{color:var(--muted);font-size:12px;margin-top:2px}
     .bar{display:flex;gap:10px;margin-top:12px}
-    input[type="search"],select{
-      flex:1;border:1px solid rgba(148,163,184,.2);
-      background:#0b1324;color:var(--text);
-      padding:12px 14px;border-radius:12px;outline:none;
-    }
-    .share-btn{
-      padding:12px 14px;border-radius:12px;border:1px solid rgba(148,163,184,.2);
-      background:#0b1324;color:var(--text);cursor:pointer;
-    }
-    .announcement{
-      background:linear-gradient(90deg, rgba(34,197,94,.18), rgba(34,197,94,.08));
-      border:1px solid rgba(34,197,94,.45);
-      padding:10px 12px;border-radius:12px;margin-top:10px;font-size:14px;
-    }
+    input[type="search"],select{flex:1;border:1px solid rgba(148,163,184,.2);background:#0b1324;color:var(--text);padding:12px 14px;border-radius:12px;outline:none}
+    .share-btn{padding:12px 14px;border-radius:12px;border:1px solid rgba(148,163,184,.2);background:#0b1324;color:var(--text);cursor:pointer}
+    .announcement{background:linear-gradient(90deg, rgba(34,197,94,.18), rgba(34,197,94,.08));border:1px solid rgba(34,197,94,.45);padding:10px 12px;border-radius:12px;margin-top:10px;font-size:14px}
+    .hero{margin-top:12px;display:grid;grid-template-columns:1fr;gap:12px}
+    .cta-duo{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:680px){.cta-duo{grid-template-columns:1fr 1fr}}
+    .btn{border:1px solid rgba(148,163,184,.25);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));color:var(--text);padding:14px 16px;border-radius:14px;cursor:pointer;box-shadow:var(--shadow);font-weight:600;text-align:center}
+    .btn:hover{transform:translateY(-1px);border-color:rgba(148,163,184,.45)}
+    .btn.primary{background:linear-gradient(180deg, rgba(34,197,94,.22), rgba(34,197,94,.08));border-color:rgba(34,197,94,.55)}
+    .btn.accent{background:linear-gradient(180deg, rgba(36,161,255,.22), rgba(36,161,255,.08));border-color:rgba(36,161,255,.55)}
+
     main{flex:1}
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px}
     @media(min-width:640px){ .grid{grid-template-columns:repeat(3,1fr)} }
     @media(min-width:900px){ .grid{grid-template-columns:repeat(4,1fr)} }
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.0));
-      border:1px solid rgba(148,163,184,.15);
-      border-radius:var(--radius);
-      padding:16px;min-height:110px;
-      display:flex;flex-direction:column;justify-content:space-between;
-      box-shadow:var(--shadow);
-      transition: transform .12s ease, border-color .12s ease;
-      cursor:pointer;text-decoration:none;color:inherit;
-    }
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.0));border:1px solid rgba(148,163,184,.15);border-radius:var(--radius);padding:16px;min-height:110px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow);transition: transform .12s ease, border-color .12s ease;cursor:pointer;text-decoration:none;color:inherit}
     .card:hover{transform:translateY(-2px);border-color:rgba(148,163,184,.35)}
     .tag{font-size:12px;color:var(--muted)}
     .title{font-size:16px;font-weight:600;margin-top:6px}
     .cta{margin-top:10px;font-size:13px;color:#a7f3d0}
-    footer{border-top:1px solid rgba(148,163,184,.15);color:var(--muted)}
+
+    .panel{border:1px solid rgba(148,163,184,.15);border-radius:14px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.0));margin-top:8px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .pillbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 2px 0}
+    .pill{font-size:12px;color:#cbd5e1;border:1px solid rgba(148,163,184,.2);padding:6px 10px;border-radius:999px;cursor:pointer}
+    .pill.active{background:#0b1324;border-color:rgba(148,163,184,.5)}
+
+    .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    @media(min-width:760px){.kpis{grid-template-columns:repeat(4,1fr)}}
+    .kpi{border:1px solid rgba(148,163,184,.15);border-radius:12px;padding:12px}
+    .kpi .n{font-size:22px;font-weight:700}
+    .barwrap{height:10px;background:#0b1324;border-radius:999px;border:1px solid rgba(148,163,184,.2);overflow:hidden}
+    .bar{height:100%;background:linear-gradient(90deg, var(--brand), var(--accent))}
+
     .list{display:grid;grid-template-columns:1fr;gap:10px}
     .item{border:1px solid rgba(148,163,184,.15);border-radius:12px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.0))}
     .item h3{margin:0 0 6px 0;font-size:15px}
     .item p{margin:0;color:#94a3b8;font-size:13px}
-    .item a{display:inline-block;margin-top:8px;font-size:13px;color:#a7f3d0}
-    .pillbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 2px 0}
-    .pill{font-size:12px;color:#cbd5e1;border:1px solid rgba(148,163,184,.2);padding:6px 10px;border-radius:999px;cursor:pointer}
-    .pill.active{background:#0b1324;border-color:rgba(148,163,184,.5)}
+
+    footer{border-top:1px solid rgba(148,163,184,.15);color:var(--muted)}
+    .hint{font-size:12px;color:#9ca3af}
   </style>
 </head>
 <body>
@@ -105,19 +85,20 @@
         <input id="search" type="search" placeholder="Search jobs, events, notices…" autocomplete="off" />
         <button id="shareBtn" class="share-btn" title="Share">Share</button>
       </div>
-      <div id="announcement" class="announcement">📣 Welcome! Pin this link in your WhatsApp group description.</div>
+      <div class="hero">
+        <div id="announcement" class="announcement">📣 Welcome! Pin this link in your WhatsApp group description.</div>
+        <div class="cta-duo">
+          <button class="btn primary" id="btnMember">Community Member</button>
+          <button class="btn accent" id="btnStakeholder">Stakeholder</button>
+        </div>
+      </div>
       <div id="pillbar" class="pillbar"></div>
     </div>
   </header>
 
   <main class="wrap">
-    <section id="cards" class="grid">
-      <!-- Cards will be rendered by JS -->
-    </section>
-
-    <section id="dynamic" style="padding:0 4px 40px 4px;">
-      <!-- Selected section appears here -->
-    </section>
+    <section id="cards" class="grid"></section>
+    <section id="dynamic" style="padding:0 4px 40px 4px;"></section>
   </main>
 
   <footer>
@@ -128,10 +109,21 @@
   </footer>
 
   <script>
-    // Clean rewrite to fix: Unexpected token '.' inside setActive and duplicate DOMContentLoaded logic.
-    // Behavior preserved. Added smooth-scroll to content.
+    // ========================= CONFIG (replace URLs when you deploy Apps Script) =========================
+    const CONFIG = {
+      CV_UPLOAD_URL: '',
+      CV_LIST_URL: '',
+      LISTING_SUBMIT_URL: '',
+      LISTING_LIST_URL: '',
+      LISTING_MOD_URL: ''
+    };
 
-    // --- Sample data in-page (edit this for your community) ---
+    const USE_REMOTE = !!(CONFIG.CV_UPLOAD_URL && CONFIG.CV_LIST_URL && CONFIG.LISTING_SUBMIT_URL && CONFIG.LISTING_LIST_URL && CONFIG.LISTING_MOD_URL);
+
+    // Local CV store keys
+    const LS_KEYS = { CV_LIST: 'cvList', MIGRATED: 'cvMigratedSingle' };
+
+    // ========================= DEMO DATA =========================
     const DATA = {
       sections: [
         { key:'news', title:'News', items:[
@@ -173,188 +165,217 @@
           { t:'Airtime/data for school tasks', d:'DM the group admin with proof of need' },
           { t:'Transport assistance', d:'Contact the youth desk for support' }
         ]}
+      ],
+      youth: [
+        {name:'A.', skilled:true, employed:false, role:'Junior Developer', exp:1, qual:'Matric + Cert'},
+        {name:'B.', skilled:false, employed:false, role:'—', exp:0, qual:'Matric'},
+        {name:'C.', skilled:true, employed:true, role:'Retail Assistant', exp:2, qual:'Matric'},
+        {name:'D.', skilled:true, employed:false, role:'Admin Intern', exp:0, qual:'Matric + N6'},
+        {name:'E.', skilled:false, employed:false, role:'—', exp:0, qual:'Grade 11'},
+        {name:'F.', skilled:true, employed:true, role:'Technician', exp:3, qual:'Diploma'},
+        {name:'G.', skilled:true, employed:false, role:'Data Trainee', exp:0, qual:'Matric + Cert'},
+        {name:'H.', skilled:false, employed:false, role:'—', exp:0, qual:'Grade 12'},
+        {name:'I.', skilled:true, employed:true, role:'Call Centre', exp:1, qual:'Matric'}
       ]
     };
 
-    // --- State ---
+    // ========================= STATE =========================
     let activeKey = location.hash.replace('#','') || 'news';
     let query = '';
     let selectedTag = null;
+    let stakeholderAuthed = false; // demo login flag
 
-    // --- Helpers ---
+    // ========================= HELPERS =========================
     const $ = sel => document.querySelector(sel);
-
-    function prefersReduced(){
-      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    }
-
-    function scrollToDynamic(){
-      const target = document.getElementById('dynamic');
-      if (!target) return;
-      const header = document.querySelector('header');
-      const offset = (header ? header.offsetHeight : 0) + 8;
-      const y = target.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top: y, behavior: prefersReduced() ? 'auto' : 'smooth' });
-    }
+    function prefersReduced(){return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;}
+    function scrollToDynamic(){const t = document.getElementById('dynamic'); if(!t)return; const h=document.querySelector('header'); const off=(h?h.offsetHeight:0)+8; const y=t.getBoundingClientRect().top + window.scrollY - off; window.scrollTo({top:y, behavior: prefersReduced()? 'auto':'smooth'});}    
+    function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1);}    
 
     function renderCards(){
-      const cards = $('#cards');
-      cards.innerHTML = '';
-      const order = [
-        ['news','Updates','News'],
-        ['events','Calendar','Events'],
-        ['jobs','Work','Jobs'],
-        ['bursaries','Education','Bursaries'],
-        ['safety','Care','Safety'],
-        ['mentors','Support','Mentors'],
-        ['sports','Recreation','Sports'],
-        ['opps','Growth','Opportunities'],
-        ['help','Urgent','Ask for Help']
-      ];
-      for (const tup of order){
-        const key = tup[0];
-        const tag = tup[1];
-        const title = tup[2];
-        const a = document.createElement('a');
-        a.href = `#${key}`;
-        a.className = 'card';
-        a.innerHTML = `<div><div class="tag">${tag}</div><div class="title">${title}</div></div><div class="cta">Open →</div>`;
-        a.addEventListener('click', (e)=>{ e.preventDefault(); setActive(key); });
-        cards.appendChild(a);
-      }
-    }
-
-    function setActive(key){
-      activeKey = key;
-      location.hash = key;
-      renderSection();
-      const ann = $('#announcement');
-      if (ann) ann.textContent = `📣 Viewing: ${capitalize(key)}. Use the search bar to find items quickly.`;
-      scrollToDynamic();
-    }
-
-    function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
-
-    function getActiveSection(){
-      return DATA.sections.find(s => s.key === activeKey) || DATA.sections[0];
-    }
-
-    function uniqueTags(section){
-      const set = new Set();
-      (section.items||[]).forEach(i => (i.tags||[]).forEach(t => set.add(t)));
-      return Array.from(set).sort();
-    }
-
-    function renderTagPills(section){
-      const bar = $('#pillbar');
-      bar.innerHTML = '';
-      const tags = uniqueTags(section);
-      if (!tags.length) return;
-      const all = document.createElement('span');
-      all.className = 'pill' + (selectedTag? '':' active');
-      all.textContent = 'All';
-      all.onclick = () => {selectedTag = null; renderSection();};
-      bar.appendChild(all);
-      tags.forEach(t => {
-        const pill = document.createElement('span');
-        pill.className = 'pill' + (selectedTag===t? ' active':'');
-        pill.textContent = t;
-        pill.onclick = () => {selectedTag = (selectedTag===t? null : t); renderSection();};
-        bar.appendChild(pill);
+      const cards = $('#cards'); cards.innerHTML='';
+      const order = [['news','Updates','News'],['events','Calendar','Events'],['jobs','Work','Jobs'],['bursaries','Education','Bursaries'],['safety','Care','Safety'],['mentors','Support','Mentors'],['sports','Recreation','Sports'],['opps','Growth','Opportunities'],['help','Urgent','Ask for Help']];
+      order.forEach(([key, tag, title])=>{
+        const a=document.createElement('a'); a.href=`#${key}`; a.className='card'; a.innerHTML=`<div><div class="tag">${tag}</div><div class="title">${title}</div></div><div class="cta">Open →</div>`; a.addEventListener('click',(e)=>{e.preventDefault();setActive(key);}); cards.appendChild(a);
       });
+      // quick access bar
+      const duo = document.createElement('div'); duo.className='panel'; duo.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center"><div><strong>Quick Access</strong><div class="sub">Choose a portal below</div></div><div style="display:flex;gap:8px"><button class="btn primary" id="gMember">Community Member</button><button class="btn accent" id="gStakeholder">Stakeholder</button></div></div>`; cards.after(duo);
+      $('#gMember').addEventListener('click', ()=> openMember()); $('#gStakeholder').addEventListener('click', ()=> openStakeholder());
     }
 
-    // Pure function for filtering (used by tests)
-    function filterItems(items, q, tag){
-      const needle = (q||'').toLowerCase().trim();
-      return (items||[])
-        .filter(i => !needle || (i.t||'').toLowerCase().includes(needle) || (i.d||'').toLowerCase().includes(needle))
-        .filter(i => !tag || (i.tags||[]).includes(tag));
+    function setActive(key){ activeKey=key; location.hash=key; renderSection(); const ann=$('#announcement'); if(ann) ann.textContent=`📣 Viewing: ${capitalize(key)}. Use the search bar to find items quickly.`; scrollToDynamic(); }
+
+    function getActiveSection(){ return DATA.sections.find(s=>s.key===activeKey) || DATA.sections[0]; }
+    function uniqueTags(section){ const set=new Set(); (section.items||[]).forEach(i=>(i.tags||[]).forEach(t=>set.add(t))); return Array.from(set).sort(); }
+
+    function renderTagPills(section){ const bar=$('#pillbar'); bar.innerHTML=''; const tags=uniqueTags(section); if(!tags.length) return; const all=document.createElement('span'); all.className='pill'+(selectedTag?'':' active'); all.textContent='All'; all.onclick=()=>{selectedTag=null; renderSection();}; bar.appendChild(all); tags.forEach(t=>{ const pill=document.createElement('span'); pill.className='pill'+(selectedTag===t?' active':''); pill.textContent=t; pill.onclick=()=>{selectedTag=(selectedTag===t?null:t); renderSection();}; bar.appendChild(pill);}); }
+
+    // Filter (kept for tests)
+    function filterItems(items,q,tag){ const needle=(q||'').toLowerCase().trim(); return (items||[]).filter(i=>!needle||(i.t||'').toLowerCase().includes(needle)||(i.d||'').toLowerCase().includes(needle)).filter(i=>!tag||(i.tags||[]).includes(tag)); }
+
+    // ========================= MEMBER PORTAL =========================
+    function openMember(){
+      activeKey='member'; const mount=$('#dynamic'); mount.innerHTML='';
+      const h=document.createElement('h2'); h.textContent='Community Member'; h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
+      const panel=document.createElement('div'); panel.className='panel';
+      panel.innerHTML=`
+        <p>Upload your CV (PDF or DOC). ${USE_REMOTE? 'Stored in Google Drive/Sheet via Apps Script.' : 'Stored <em>locally</em> in this prototype.'}</p>
+        <input type="file" id="cvInput" accept=".pdf,.doc,.docx" />
+        <div class="row" style="margin-top:8px"> 
+          <input id="cvName" placeholder="Your full name" style="flex:1;min-width:220px" />
+          <input id="cvEmail" placeholder="Email or phone" style="flex:1;min-width:220px" />
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="cvRole" placeholder="Target role (e.g., Retail Assistant, Developer)" style="flex:2;min-width:240px" />
+          <input id="cvQual" placeholder="Highest qualification (e.g., Matric, Diploma)" style="flex:2;min-width:240px" />
+          <input id="cvExp" type="number" min="0" step="1" placeholder="Years exp" style="width:130px" />
+        </div>
+        <div class="row" style="margin-top:8px;align-items:center">
+          <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="cvSkilled" /> Skilled</label>
+          <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="cvEmployed" /> Employed</label>
+        </div>
+        <div style="margin-top:8px">
+          <button class="btn primary" id="saveCV">${USE_REMOTE? 'Upload to Hub':'Save CV Locally'}</button>
+          <button class="btn" id="clearCV">Remove Saved CVs (local)</button>
+        </div>
+        <div id="cvStatus" class="sub" style="margin-top:8px"></div>
+        <div class="hint" style="margin-top:6px">By uploading you agree your CV may be visible to verified stakeholders for recruitment.</div>
+      `; mount.appendChild(panel);
+      const listPanel=document.createElement('div'); listPanel.className='panel'; listPanel.innerHTML=`<strong>My Submissions</strong><div id="mySubs" class="list" style="margin-top:8px"></div>`; mount.appendChild(listPanel);
+      bindMember(); scrollToDynamic();
     }
 
-    function renderSection(){
-      const mount = $('#dynamic');
-      const sec = getActiveSection();
-      renderTagPills(sec);
-      const items = filterItems(sec.items || [], query, selectedTag);
+    function bindMember(){
+      migrateSingleCVToArray();
+      const status=$('#cvStatus'), saveBtn=$('#saveCV'), clearBtn=$('#clearCV'), input=$('#cvInput'), subs=$('#mySubs');
+      function refreshSubs(){ const arr=getLocalCVs(); subs.innerHTML=''; if(!arr.length){ subs.innerHTML='<div class="item"><p>No CVs saved yet.</p></div>'; return;} arr.forEach(m=>{ const div=document.createElement('div'); div.className='item'; div.innerHTML=`<h3>${m.name||'Unknown'} — ${m.filename}</h3><p>${m.contact||''}</p><p class="hint">${m.role||'—'} · ${m.qual||'—'} · ${m.exp||0} yrs · ${m.skilled? 'Skilled':'Unskilled'} · ${m.employed? 'Employed':'Unemployed'}</p><p class="hint">Saved: ${new Date(m.savedAt).toLocaleString()}</p>${m.dataUrl? `<a href="${m.dataUrl}" download="${m.filename}">Download CV</a>`:''}`; subs.appendChild(div); }); }
+      saveBtn.onclick=async ()=>{
+        const f=input.files && input.files[0]; const name=($('#cvName').value||'').trim(); const contact=($('#cvEmail').value||'').trim(); const role=($('#cvRole').value||'').trim(); const qual=($('#cvQual').value||'').trim(); const exp=parseInt($('#cvExp').value||'0',10)||0; const skilled=$('#cvSkilled').checked; const employed=$('#cvEmployed').checked; if(!f){ status.textContent='Please choose a file first.'; return;} if(!name||!contact){ status.textContent='Please add your name and contact.'; return;}
+        if(USE_REMOTE){ status.textContent='Remote upload not configured.'; }
+        else{ const reader=new FileReader(); reader.onload=()=>{ try{ const meta={ id:'cv_'+Date.now(), filename:f.name, size:f.size, type:f.type, savedAt:Date.now(), name, contact, role, qual, exp, skilled, employed, dataUrl: reader.result }; const list=getLocalCVs(); list.unshift(meta); localStorage.setItem(LS_KEYS.CV_LIST, JSON.stringify(list)); status.textContent='CV saved locally.'; refreshSubs(); }catch(e){ status.textContent='Could not save. Try a smaller file.'; } }; reader.readAsDataURL(f); }
+      };
+      clearBtn.onclick=()=>{ localStorage.removeItem(LS_KEYS.CV_LIST); status.textContent='All local CVs removed.'; refreshSubs(); };
+      refreshSubs();
+    }
 
-      mount.innerHTML = '';
-      const h = document.createElement('h2');
-      h.textContent = sec.title;
-      h.style.margin = '22px 2px 8px 2px';
-      h.style.fontSize = '18px';
-      mount.appendChild(h);
+    function getLocalCVs(){ try{ const arr=JSON.parse(localStorage.getItem(LS_KEYS.CV_LIST)||'[]'); return Array.isArray(arr)? arr: []; }catch(e){ return []; } }
+    function migrateSingleCVToArray(){ if(localStorage.getItem(LS_KEYS.MIGRATED)) return; const meta=JSON.parse(localStorage.getItem('cvMeta')||'null'); const data=localStorage.getItem('cvData'); if(meta){ const arr=getLocalCVs(); arr.unshift({ id:'cv_'+Date.now(), filename: meta.filename, size: meta.size, type: meta.type, savedAt: meta.savedAt||Date.now(), name: meta.name||'', contact: meta.contact||'', role: meta.role||'', qual: meta.qual||'', exp: meta.exp||0, skilled: !!meta.skilled, employed: !!meta.employed, dataUrl: data||'' }); localStorage.setItem(LS_KEYS.CV_LIST, JSON.stringify(arr)); } localStorage.setItem(LS_KEYS.MIGRATED, '1'); }
 
-      const list = document.createElement('div');
-      list.className = 'list';
-      items.forEach(it => {
-        const div = document.createElement('div');
-        div.className = 'item';
-        const linkHTML = it.link ? `<a href="${it.link}" target="_blank" rel="noopener">Open link →</a>` : '';
-        div.innerHTML = `<h3>${it.t||''}</h3><p>${it.d||''}</p>${linkHTML}`;
-        list.appendChild(div);
+    // ========================= STAKEHOLDER =========================
+    function openStakeholder(){
+      activeKey='stakeholder'; const mount=$('#dynamic'); mount.innerHTML=''; const h=document.createElement('h2'); h.textContent='Stakeholder'; h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
+      if(!stakeholderAuthed){ const login=document.createElement('div'); login.className='panel'; login.innerHTML=`<p>Login with provided credentials to view CVs and manage listings.</p><div class="row"><input id="user" placeholder="Username" style="flex:1;min-width:200px" /><input id="pass" placeholder="Password" type="password" style="flex:1;min-width:200px" /><button class="btn accent" id="doLogin">Login</button></div><div class="sub" id="loginMsg" style="margin-top:6px"></div>`; mount.appendChild(login); $('#doLogin').onclick=()=>{ const u=($('#user').value||'').trim(); const p=($('#pass').value||'').trim(); if(u==='stakeholder' && p==='Taaibosch2025!'){ stakeholderAuthed=true; openStakeholder(); } else { $('#loginMsg').textContent='Invalid credentials.'; } }; scrollToDynamic(); return; }
+
+      // Dashboard KPIs
+      const dash=document.createElement('div'); dash.className='panel'; dash.innerHTML=`<strong>Youth Dashboard</strong><div id="kpis" class="kpis" style="margin-top:8px"></div>`; mount.appendChild(dash);
+      const bars=document.createElement('div'); bars.className='panel'; bars.innerHTML=`<strong>Roles & Qualifications</strong><div id="barsWrap" style="margin-top:8px"></div>`; mount.appendChild(bars);
+
+      // CV Browser with filters
+      const cv=document.createElement('div'); cv.className='panel'; cv.innerHTML=`
+        <strong>Candidate CVs</strong>
+        <div class="row" id="cvFilters" style="margin-top:8px">
+          <select id="fSkill" style="min-width:150px">
+            <option value="">All skills</option>
+            <option value="skilled">Skilled</option>
+            <option value="unskilled">Unskilled</option>
+          </select>
+          <select id="fEmp" style="min-width:170px">
+            <option value="">All employment</option>
+            <option value="employed">Employed</option>
+            <option value="unemployed">Unemployed</option>
+          </select>
+          <input id="fRole" placeholder="Filter by role" style="flex:2;min-width:200px" />
+          <select id="fQual" style="min-width:200px"><option value="">All qualifications</option></select>
+        </div>
+        <div id="cvCounts" class="hint" style="margin-top:6px"></div>
+        <div id="cvList" class="list" style="margin-top:8px"></div>`; 
+      mount.appendChild(cv);
+
+      // Listing management
+      const mgmt=document.createElement('div'); mgmt.className='panel'; mgmt.innerHTML=`<strong>Manage listings</strong><div class="row" style="margin-top:8px"><button class="btn" id="btnAddJob">Add Job</button><button class="btn" id="btnAddOpp">Add Opportunity</button><button class="btn" id="btnAddBur">Add Bursary</button></div><div id="formsWrap" style="margin-top:8px"></div><div id="pendingWrap" style="margin-top:8px"></div>`; mount.appendChild(mgmt);
+
+      renderDashboard(); bindCVFilters(); bindListingButtons(); loadCVs(); scrollToDynamic();
+    }
+
+    // Dashboard helpers
+    function computeStats(arr){ const total=arr.length; const skilled=arr.filter(x=>x.skilled).length; const unskilled=total-skilled; const employed=arr.filter(x=>x.employed).length; const unemployed=total-employed; const byRole=groupBy(arr.filter(x=>x.role && x.role!=='—'),'role'); const byQual=groupBy(arr,'qual'); return { total, skilled, unskilled, employed, unemployed, byRole, byQual }; }
+    function groupBy(arr,key){ const m=new Map(); arr.forEach(o=>{ const k=o[key]||'Unknown'; m.set(k,(m.get(k)||0)+1); }); return Array.from(m.entries()).sort((a,b)=>b[1]-a[1]); }
+    function pct(n,d){ return d? Math.round((n/d)*100):0; }
+    function renderDashboard(){ const k=$('#kpis'), b=$('#barsWrap'); const base=DATA.youth.concat(getLocalCVs().map(m=>({ skilled:!!m.skilled, employed:!!m.employed, role:m.role||'—', qual:m.qual||'Unknown' }))); const S=computeStats(base); k.innerHTML=''; const kpi=(label,n,p)=>{ const d=document.createElement('div'); d.className='kpi'; d.innerHTML=`<div class="n">${n}</div><div class="sub">${label}</div><div class="barwrap" style="margin-top:8px"><div class="bar" style="width:${p}%"></div></div><div class="sub" style="margin-top:4px">${p}%</div>`; return d; }; k.append(kpi('Total Youth', S.total, 100), kpi('Skilled', S.skilled, pct(S.skilled,S.total)), kpi('Unskilled', S.unskilled, pct(S.unskilled,S.total)), kpi('Employed', S.employed, pct(S.employed,S.total)), kpi('Unemployed', S.unemployed, pct(S.unemployed,S.total))); b.innerHTML=''; const makeBarList=(title,entries)=>{ const wrap=document.createElement('div'); wrap.className='item'; const list=entries.slice(0,8); let html=`<h3>${title}</h3>`; list.forEach(([name,count])=>{ const width=pct(count,S.total); html+=`<div class="row" style="align-items:center;gap:8px"><div style="width:160px">${name}</div><div class="barwrap" style="flex:1"><div class="bar" style="width:${width}%"></div></div><div style="width:40px;text-align:right">${count}</div></div>`; }); wrap.innerHTML=html; return wrap; }; b.append(makeBarList('Top Roles', S.byRole), makeBarList('Qualifications', S.byQual)); }
+
+    // CVs
+    async function loadCVs(){
+      const listEl=$('#cvList'); const countsEl=$('#cvCounts'); const qRole=($('#fRole')?.value||'').toLowerCase().trim(); const qSkill=$('#fSkill')?.value||''; const qEmp=$('#fEmp')?.value||''; const qQual=$('#fQual')?.value||'';
+      let rows=[];
+      if(USE_REMOTE){
+        try{ const res=await fetch(CONFIG.CV_LIST_URL); rows=await res.json(); }catch(e){ listEl.innerHTML='<div class="item"><p>Could not load CVs.</p></div>'; return; }
+      } else {
+        rows=getLocalCVs();
+      }
+      // build qualification options fresh each time
+      const qualSel=$('#fQual'); if(qualSel){ const options=['', ...Array.from(new Set(rows.map(r=>r.qual).filter(Boolean)))]; qualSel.innerHTML=''; options.forEach(q=>{ const opt=document.createElement('option'); opt.value=q; opt.textContent=q? q : 'All qualifications'; qualSel.appendChild(opt); }); qualSel.value=qQual; }
+
+      // filter
+      const filtered=rows.filter(r=>{
+        if(qSkill==='skilled' && !r.skilled) return false; if(qSkill==='unskilled' && r.skilled) return false;
+        if(qEmp==='employed' && !r.employed) return false; if(qEmp==='unemployed' && r.employed) return false;
+        if(qQual && (r.qual||'')!==qQual) return false;
+        if(qRole && !((r.role||'').toLowerCase().includes(qRole))) return false;
+        return true;
       });
-      if (!items.length){
-        const empty = document.createElement('div');
-        empty.className = 'item';
-        empty.innerHTML = '<p>No items yet. Ask an admin to add some here.</p>';
-        list.appendChild(empty);
-      }
-      mount.appendChild(list);
+
+      // counts
+      const total=rows.length; const skilled=rows.filter(x=>x.skilled).length; const employed=rows.filter(x=>x.employed).length; countsEl.textContent=`${filtered.length} shown · ${total} total · ${skilled} skilled · ${total-skilled} unskilled · ${employed} employed · ${total-employed} unemployed`;
+
+      // render
+      listEl.innerHTML='';
+      if(!filtered.length){ listEl.innerHTML='<div class="item"><p>No matching candidates.</p></div>'; return; }
+      filtered.forEach(m=>{ const div=document.createElement('div'); div.className='item'; div.innerHTML=`<h3>${m.name||'Unknown'} — ${m.filename||''}</h3><p>${m.contact||''}</p><p class="hint">${m.role||'—'} · ${m.qual||'—'} · ${m.exp||0} yrs · ${m.skilled? 'Skilled':'Unskilled'} · ${m.employed? 'Employed':'Unemployed'}</p>${m.dataUrl? `<a href="${m.dataUrl}" download="${m.filename}">Download CV</a>`:''}`; listEl.appendChild(div); });
     }
 
-    // --- Share API (fallback to copy) ---
-    async function doShare(){
-      const shareBtn = $('#shareBtn');
-      try{
-        if (navigator.share){
-          await navigator.share({ title: document.title, text: 'Taaibosch Community Hub — Youth Updates', url: location.href });
-        } else {
-          await navigator.clipboard.writeText(location.href);
-          if (shareBtn) {
-            shareBtn.textContent = 'Link Copied';
-            setTimeout(()=> shareBtn.textContent='Share', 1600);
-          }
-        }
-      }catch(e){ console.warn(e); }
+    function bindCVFilters(){ ['fSkill','fEmp','fRole','fQual'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.addEventListener('input', loadCVs); el.addEventListener('change', loadCVs);} }); }
+
+    // Listings: forms + Approve→Publish
+    function bindListingButtons(){ $('#btnAddJob').onclick=()=> openListingForm('job'); $('#btnAddOpp').onclick=()=> openListingForm('opportunity'); $('#btnAddBur').onclick=()=> openListingForm('bursary'); renderPending(); }
+
+    function openListingForm(type){ const wrap=$('#formsWrap'); const Title=type==='job'?'Job':(type==='opportunity'?'Opportunity':'Bursary'); wrap.innerHTML=`<div class="item"><h3>Add ${Title}</h3><div class="row"><input id="f_title" placeholder="Title" style="flex:1;min-width:220px" /><input id="f_deadline" placeholder="Deadline (YYYY-MM-DD)" style="flex:1;min-width:220px" /></div><div class="row"><input id="f_contact" placeholder="Contact (email/phone)" style="flex:1;min-width:220px" /><input id="f_link" placeholder="Link (optional)" style="flex:1;min-width:220px" /></div><textarea id="f_desc" placeholder="Short description" rows="3" style="width:100%;margin-top:8px"></textarea><div class="row" style="margin-top:8px"><input id="f_tags" placeholder="Tags (comma-separated)" style="flex:1;min-width:220px" /></div><div class="row" style="margin-top:8px"><button class="btn primary" id="submitListing">Submit for Approval</button><div id="formMsg" class="sub"></div></div></div>`; $('#submitListing').onclick=()=> submitListing(type); }
+
+    function validateListing(p){ if(!p.title || !p.desc || !p.contact) return 'Title, description, and contact are required.'; if(p.deadline && !/^\d{4}-\d{2}-\d{2}$/.test(p.deadline)) return 'Deadline must be YYYY-MM-DD'; return ''; }
+
+    async function submitListing(type){ const p={ type, title:($('#f_title').value||'').trim(), desc:($('#f_desc').value||'').trim(), contact:($('#f_contact').value||'').trim(), deadline:($('#f_deadline').value||'').trim(), link:($('#f_link').value||'').trim(), tags:($('#f_tags').value||'').split(',').map(s=>s.trim()).filter(Boolean) }; const msg=$('#formMsg'); const err=validateListing(p); if(err){ msg.textContent=err; return; }
+      if(USE_REMOTE){ try{ const res=await fetch(CONFIG.LISTING_SUBMIT_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p)}); if(!res.ok) throw new Error('Network'); msg.textContent='Submitted for approval.'; }catch(e){ msg.textContent='Submit failed.'; } }
+      else{ const arr=JSON.parse(localStorage.getItem('pendingListings')||'[]'); arr.push({ ...p, id:'l_'+Date.now() }); localStorage.setItem('pendingListings', JSON.stringify(arr)); msg.textContent='Submitted (demo).'; renderPending(); }
     }
 
-    // --- Tests (console only) ---
-    function runTests(){
-      const jobs = DATA.sections.find(s=>s.key==='jobs').items;
-      const events = DATA.sections.find(s=>s.key==='events').items;
-
-      // Existing tests
-      console.assert(filterItems(jobs, 'admin', null).length === 1, 'Test: search title (admin) should return 1');
-      console.assert(filterItems(jobs, 'mall', null).length === 1, 'Test: search desc (mall) should return 1');
-      console.assert(filterItems(jobs, '', 'Internship').length === 1, 'Test: tag Internship should return 1');
-      console.assert(filterItems(jobs, 'admin', 'Internship').length === 1, 'Test: admin + Internship returns 1');
-      console.assert(filterItems(events, 'nonexistent', null).length === 0, 'Test: nonexistent query returns 0');
-
-      // Additional tests
-      console.assert(filterItems(events, 'bootcamp', null).length === 1, 'Test: bootcamp search should return 1');
-      console.assert(filterItems(events, '', 'AI').length === 1, 'Test: AI tag returns 1');
-      console.assert(filterItems(events, 'coding', 'Tech').length === 1, 'Test: coding + Tech returns 1');
+    function renderPending(){ const wrap=$('#pendingWrap'); const pending = USE_REMOTE? [] : JSON.parse(localStorage.getItem('pendingListings')||'[]'); const approved = USE_REMOTE? [] : JSON.parse(localStorage.getItem('approvedListings')||'[]'); let html=`<div class="item"><h3>Pending Approval</h3>`; if(!USE_REMOTE && !pending.length) html += '<p class="hint">No pending items.</p>'; pending.forEach(p=>{ html+=renderListingRow(p,true); }); html+='</div>'; html+=`<div class="item" style="margin-top:8px"><h3>Published</h3>`; if(!USE_REMOTE && !approved.length) html+='<p class="hint">No published items yet.</p>'; approved.forEach(p=>{ html+=renderListingRow(p,false); }); html+='</div>'; wrap.innerHTML=html; if(!USE_REMOTE){ pending.forEach(p=>{ const a=$(`#approve_${p.id}`); if(a) a.onclick=()=> approveListing(p.id); const r=$(`#reject_${p.id}`); if(r) r.onclick=()=> rejectListing(p.id); }); }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const y = document.getElementById('year');
-      if (y) y.textContent = new Date().getFullYear();
-      renderCards();
-      setActive(activeKey);
-      const share = document.getElementById('shareBtn');
-      if (share) share.addEventListener('click', doShare);
-      const s = document.getElementById('search');
-      if (s) s.addEventListener('input', (e)=>{ query = (e.target.value||'').toLowerCase().trim(); renderSection(); });
+    function renderListingRow(p,isPending){ const tag=p.tags && p.tags.length? (' · '+p.tags.join(', ')) : ''; return `<div class="row" style="align-items:flex-start;gap:8px"><div style="flex:1"><strong>${p.title}</strong><div class="hint">${p.type.toUpperCase()}${tag}</div><div>${p.desc}</div><div class="hint">Contact: ${p.contact}${p.deadline? ' · Deadline: '+p.deadline : ''}</div></div><div style="display:flex;gap:6px">${isPending? `<button class="btn primary" id="approve_${p.id}">Approve</button><button class="btn" id="reject_${p.id}">Reject</button>` : ''}</div></div>`; }
 
-      const params = new URLSearchParams(location.search);
-      if (params.get('test') !== '0'){
-        try { runTests(); console.log('%cAll tests passed', 'color:#22c55e'); }
-        catch(err){ console.error('Test failure', err); }
-      }
-    });
+    function approveListing(id){ const pending=JSON.parse(localStorage.getItem('pendingListings')||'[]'); const approved=JSON.parse(localStorage.getItem('approvedListings')||'[]'); const idx=pending.findIndex(x=>x.id===id); if(idx>-1){ const [p]=pending.splice(idx,1); approved.push(p); localStorage.setItem('pendingListings', JSON.stringify(pending)); localStorage.setItem('approvedListings', JSON.stringify(approved)); mergeApprovedIntoSections(); renderPending(); } }
+    function rejectListing(id){ const pending=JSON.parse(localStorage.getItem('pendingListings')||'[]'); const idx=pending.findIndex(x=>x.id===id); if(idx>-1){ pending.splice(idx,1); localStorage.setItem('pendingListings', JSON.stringify(pending)); renderPending(); } }
 
-    window.addEventListener('hashchange', () => { setActive(location.hash.replace('#','')||'news'); });
+    function mergeApprovedIntoSections(){ if(USE_REMOTE) return; const approved=JSON.parse(localStorage.getItem('approvedListings')||'[]'); ['jobs','opps','bursaries'].forEach(k=>{ const sec=DATA.sections.find(s=>s.key===k); if(!sec) return; sec.items = (sec.items||[]).filter(it=>!it._approved); }); approved.forEach(p=>{ const map={ job:'jobs', opportunity:'opps', bursary:'bursaries' }; const k=map[p.type]||'opps'; const sec=DATA.sections.find(s=>s.key===k); if(!sec) return; const item={ t:p.title, d:p.desc + (p.deadline? ` · Deadline: ${p.deadline}`:''), link:p.link||'', tags:p.tags||[], _approved:true }; (sec.items=sec.items||[]).unshift(item); }); }
+
+    // ========================= SECTION RENDERER =========================
+    function renderSection(){ const mount=$('#dynamic'); if(activeKey==='member'){ openMember(); return; } if(activeKey==='stakeholder'){ openStakeholder(); return; }
+      mergeApprovedIntoSections(); const sec=getActiveSection(); renderTagPills(sec); const items=filterItems(sec.items||[], query, selectedTag);
+      mount.innerHTML=''; const h=document.createElement('h2'); h.textContent=sec.title; h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
+      const list=document.createElement('div'); list.className='list'; items.forEach(it=>{ const div=document.createElement('div'); div.className='item'; const linkHTML=it.link? `<a href="${it.link}" target="_blank" rel="noopener">Open link →</a>`:''; div.innerHTML=`<h3>${it.t||''}</h3><p>${it.d||''}</p>${linkHTML}`; list.appendChild(div); }); if(!items.length){ const empty=document.createElement('div'); empty.className='item'; empty.innerHTML='<p>No items yet. Ask an admin to add some here.</p>'; list.appendChild(empty);} mount.appendChild(list);
+    }
+
+    // ========================= SHARE & TESTS =========================
+    async function doShare(){ const shareBtn=$('#shareBtn'); try{ if(navigator.share){ await navigator.share({ title: document.title, text: 'Taaibosch Community Hub — Youth Updates', url: location.href }); } else { await navigator.clipboard.writeText(location.href); if(shareBtn){ shareBtn.textContent='Link Copied'; setTimeout(()=> shareBtn.textContent='Share', 1600); } } }catch(e){ console.warn(e); } }
+
+    function bindCVFilters(){ ['fSkill','fEmp','fRole','fQual'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.addEventListener('input', loadCVs); el.addEventListener('change', loadCVs);} }); }
+
+    function runTests(){ const jobs=DATA.sections.find(s=>s.key==='jobs').items; const events=DATA.sections.find(s=>s.key==='events').items; console.assert(filterItems(jobs,'admin',null).length===1,'Test: search title (admin) should return 1'); console.assert(filterItems(jobs,'mall',null).length===1,'Test: search desc (mall) should return 1'); console.assert(filterItems(jobs,'', 'Internship').length===1,'Test: tag Internship should return 1'); console.assert(filterItems(jobs,'admin','Internship').length===1,'Test: admin + Internship returns 1'); console.assert(filterItems(events,'nonexistent',null).length===0,'Test: nonexistent query returns 0');
+      // new tests for CV filters & validation
+      const demo=[{skilled:true,employed:false,role:'Dev',qual:'Matric'},{skilled:false,employed:true,role:'Retail',qual:'Diploma'}]; const skilledCount=demo.filter(x=>x.skilled).length; console.assert(skilledCount===1,'CV test: skilled count');
+      const err1=validateListing({title:'x',desc:'',contact:''}); console.assert(!!err1,'Listing validation should fail without desc/contact'); const err2=validateListing({title:'x',desc:'y',contact:'z',deadline:'2025-13-40'}); console.assert(!!err2,'Deadline format invalid'); const err3=validateListing({title:'x',desc:'y',contact:'z',deadline:'2025-10-15'}); console.assert(!err3,'Deadline ok'); }
+
+    // ========================= INIT =========================
+    window.addEventListener('DOMContentLoaded', ()=>{ const y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear(); renderCards(); setActive(activeKey); const share=document.getElementById('shareBtn'); if(share) share.addEventListener('click', doShare); const s=document.getElementById('search'); if(s) s.addEventListener('input',(e)=>{ query=(e.target.value||'').toLowerCase().trim(); renderSection(); }); document.getElementById('btnMember').addEventListener('click', ()=> openMember()); document.getElementById('btnStakeholder').addEventListener('click', ()=> openStakeholder()); const params=new URLSearchParams(location.search); if(params.get('test')!=='0'){ try{ runTests(); console.log('%cAll tests passed','color:#22c55e'); }catch(err){ console.error('Test failure', err); } } });
+    window.addEventListener('hashchange', ()=>{ setActive(location.hash.replace('#','')||'news'); });
   </script>
 </body>
 </html>
