@@ -124,7 +124,7 @@
     const ADMIN_PASS='admin2025!';
 
     // Local CV store keys
-    const LS_KEYS = { CV_LIST: 'cvList', MIGRATED: 'cvMigratedSingle' };
+    const LS_KEYS = { CV_LIST: 'cvList', MIGRATED: 'cvMigratedSingle', MEMBER_PROFILE: 'memberProfile' };
 
     // ========================= DEMO DATA =========================
     const DATA = {
@@ -219,6 +219,104 @@
     // Filter (kept for tests)
     function filterItems(items,q,tag){ const needle=(q||'').toLowerCase().trim(); return (items||[]).filter(i=>!needle||(i.t||'').toLowerCase().includes(needle)||(i.d||'').toLowerCase().includes(needle)).filter(i=>!tag||(i.tags||[]).includes(tag)); }
 
+    // ========================= MEMBER PORTAL (Profile helpers) =========================
+    function getProfile(){ try{ return JSON.parse(localStorage.getItem(LS_KEYS.MEMBER_PROFILE)||'{}'); }catch(e){ return {}; } }
+    function saveProfile(p){ localStorage.setItem(LS_KEYS.MEMBER_PROFILE, JSON.stringify(p)); }
+    function ensureProfile(){ const p=getProfile(); if(!p.name && memberName) p.name=memberName; p.education=p.education||[]; p.experience=p.experience||[]; p.skills=p.skills||[]; p.notes=p.notes||[]; return p; }
+
+    function bindMemberProfile(){ const p=ensureProfile(); if(memberName && (!p.name||p.name!==memberName)){ p.name=memberName; saveProfile(p);} const goalInput=$('#goalRole'); if(goalInput) goalInput.value=p.goal||''; 
+      const saveGoal=$('#saveGoal'); if(saveGoal) saveGoal.onclick=()=>{ const v=($('#goalRole').value||'').trim(); const p2=ensureProfile(); p2.goal=v; saveProfile(p2); renderMemberProfile(); };
+      const addEdu=$('#addEdu'); if(addEdu) addEdu.onclick=()=>{ const school=($('#eduSchool').value||'').trim(); const qual=($('#eduQual').value||'').trim(); const year=parseInt($('#eduYear').value||'0',10)||null; if(!school||!qual){ return; } const p2=ensureProfile(); p2.education.unshift({school,qual,year}); saveProfile(p2); renderMemberProfile(); ['eduSchool','eduQual','eduYear'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='';}); };
+      const addExp=$('#addExp'); if(addExp) addExp.onclick=()=>{ const role=($('#expRole').value||'').trim(); const org=($('#expOrg').value||'').trim(); const years=parseFloat($('#expYears').value||'0')||0; if(!role||!org){ return; } const p2=ensureProfile(); p2.experience.unshift({role,org,years}); saveProfile(p2); renderMemberProfile(); ['expRole','expOrg','expYears'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='';}); };
+      const addSkill=$('#addSkill'); if(addSkill) addSkill.onclick=()=>{ const name=($('#skillName').value||'').trim(); const level=$('#skillLevel').value||'Beginner'; if(!name){ return; } const p2=ensureProfile(); p2.skills.unshift({name,level}); saveProfile(p2); renderMemberProfile(); const sn=$('#skillName'); if(sn) sn.value=''; };
+      const addNote=$('#addNote'); if(addNote) addNote.onclick=()=>{ const note=($('#extraNote').value||'').trim(); if(!note) return; const p2=ensureProfile(); p2.notes.unshift({note,at:Date.now()}); saveProfile(p2); renderMemberProfile(); const en=$('#extraNote'); if(en) en.value=''; };
+    }
+
+    function renderMemberProfile(){ const p=ensureProfile(); const box=$('#profileTables'); if(!box) return; const mkList=(title,rows,fmt)=>{ if(!rows||!rows.length) return `<div class=\"item\"><h3>${title}</h3><p class=\"hint\">No ${title.toLowerCase()} added yet.</p></div>`; return `<div class=\"item\"><h3>${title}</h3>${rows.map(fmt).join('')}</div>`; };
+      const eduHTML = mkList('Education', p.education, e=>`<div class=\"row\"><div>${e.school}</div><div class=\"hint\">${e.qual}${e.year? ' · '+e.year:''}</div></div>`);
+      const expHTML = mkList('Experience', p.experience, e=>`<div class=\"row\"><div>${e.role}</div><div class=\"hint\">${e.org}${e.years? ' · '+e.years+' yrs':''}</div></div>`);
+      const skillsHTML = mkList('Skills', p.skills, s=>`<div class=\"row\"><div>${s.name}</div><div class=\"hint\">${s.level}</div></div>`);
+      const notesHTML = mkList('Other', p.notes, n=>`<div class=\"row\"><div>${n.note}</div><div class=\"hint\">${new Date(n.at).toLocaleDateString()}</div></div>`);
+      box.innerHTML = eduHTML + expHTML + skillsHTML + notesHTML;
+      renderAdvice(p);
+    }
+
+    // Simple advice engine (demo)
+    const ROLE_GUIDE = {
+      'junior developer': { must:['Basic coding (Python/JS)','Git basics','Problem solving'], nice:['Portfolio (GitHub)','Internship/apprenticeship'] },
+      'software engineer': { must:['Programming fundamentals','Data structures & algorithms','Git / version control'], nice:['Projects/portfolio','Internship','Cloud basics'] },
+      'data engineer': { must:['SQL','ETL basics','Data modelling'], nice:['Python','Spark/BigQuery','Cloud pipelines'] },
+      'retail assistant': { must:['Customer service','Point of Sale basics','Maths literacy'], nice:['Stock control','Merchandising'] },
+      'admin assistant': { must:['MS Word/Excel','Email etiquette','Filing/Docs'], nice:['Basic accounting','Minute taking'] },
+      'technician': { must:['Hands-on practicals','Safety basics','Tools knowledge'], nice:['Trade test prep','Vendor certs'] },
+      'call centre': { must:['Communication','CRM basics','Typing'], nice:['Sales fundamentals','Conflict handling'] },
+      'electrician apprentice': { must:['Basic electrical theory','Safety/lockout','Hand tools'], nice:['Trade school modules','Apprenticeship logbook'] },
+      'diesel mechanic apprentice': { must:['Engine basics','Workshop safety','Hand tools'], nice:['Diagnostics basics','Apprenticeship logbook'] },
+      'safety officer': { must:['OHS Act basics','Risk assessment','Incident reporting'], nice:['First Aid level 1','Fire marshal','SAMTRAC'] },
+      'teacher assistant': { must:['Classroom support','Literacy/numeracy support','Child safeguarding'], nice:['Basic lesson prep','After-school tutoring'] },
+      'nurse assistant': { must:['Patient care basics','Infection control','Vitals measurement'], nice:['First Aid','Ward procedures'] },
+      'community health worker': { must:['Community outreach','Health education','Record keeping'], nice:['HIV/TB awareness','Referral pathways'] },
+      'data capturer': { must:['Typing accuracy','Basic spreadsheets','Attention to detail'], nice:['Data cleaning','Simple dashboards'] },
+      'warehouse picker/packer': { must:['Picking/packing basics','Safety & PPE','Inventory counts'], nice:['Scanner use','Housekeeping 5S'] },
+      'security officer': { must:['Observation & reporting','Access control','Patrol basics'], nice:['PSIRA compliance','Conflict de-escalation'] }
+    };
+
+    function renderAdvice(p){
+      const box=$('#adviceBox'); if(!box) return;
+      const goal=(p.goal||'').toLowerCase().trim();
+      if(!goal){ box.textContent='Add a target role to get suggestions.'; return; }
+
+      // Alias map improves matching
+      const ROLE_ALIASES = {
+        'software developer':'software engineer',
+        'developer':'software engineer',
+        'dev':'software engineer',
+        'programmer':'software engineer',
+        'se':'software engineer',
+        'warehouse packer':'warehouse picker/packer',
+        'warehouse picker':'warehouse picker/packer',
+        'picker':'warehouse picker/packer',
+        'packer':'warehouse picker/packer',
+        'security guard':'security officer',
+        'guard':'security officer',
+        'teaching assistant':'teacher assistant',
+        'teacher aide':'teacher assistant',
+        'data engineering':'data engineer'
+      };
+
+      const keys=Object.keys(ROLE_GUIDE);
+      let matchedKey = '';
+      // 1) direct contains
+      matchedKey = keys.find(k=> goal.includes(k)) || '';
+      // 2) alias contains
+      if(!matchedKey){
+        const hit = Object.entries(ROLE_ALIASES).find(([alias])=> goal.includes(alias));
+        if(hit) matchedKey = ROLE_ALIASES[hit[0]];
+      }
+      // 3) fallback: fuzzy contains the other way around
+      if(!matchedKey){ matchedKey = keys.find(k=> k.includes(goal)) || ''; }
+
+      const guide = matchedKey? ROLE_GUIDE[matchedKey] : null;
+      const skills=(p.skills||[]).map(s=>s.name.toLowerCase());
+      const quals=(p.education||[]).map(e=> (e.qual||'').toLowerCase());
+      const missing = guide? guide.must.filter(req=> !skills.some(s=> s.includes(req.split(' ')[0].toLowerCase())) ) : [];
+
+      let html='';
+      html += `<div><strong>Goal:</strong> ${p.goal}</div>`;
+      if(guide){
+        html += `<div style="margin-top:6px"><strong>Template:</strong> ${matchedKey}</div>`;
+        html += `<div style="margin-top:6px"><strong>Must-have</strong>: ${guide.must.join(', ')}</div>`;
+        if(guide.nice && guide.nice.length) html += `<div class="hint"><strong>Good to have</strong>: ${guide.nice.join(', ')}</div>`;
+        if(missing.length){ html += `<div style="margin-top:6px"><strong>Suggested upskilling</strong>: ${missing.join(', ')}</div>`; }
+      } else {
+        html += `<div class="hint">No template for this role yet. Add skills and education; admins can extend the guide.</div>`;
+      }
+      // Generic suggestions
+      const hasMatric = quals.some(q=> q.includes('matric'));
+      if(!hasMatric) html += `<div class="hint" style="margin-top:6px">Consider completing/recording <strong>Matric</strong> or equivalent if applicable.</div>`;
+      box.innerHTML = html;
+    }
+
     // ========================= MEMBER PORTAL =========================
     function openMember(){
       activeKey='member'; const mount=$('#dynamic'); mount.innerHTML='';
@@ -231,8 +329,51 @@
         : `<div class="row" style="align-items:center"><input id="memberNameInput" placeholder="Enter your name to sign in" style="flex:1;min-width:260px" /><button id="setMemberName" class="btn primary">Sign in</button></div>`;
       mount.appendChild(signin);
 
+      // === Profile Builder Panel ===
+      const profWrap=document.createElement('div'); profWrap.className='panel';
+      profWrap.innerHTML=`
+        <strong>Your Profile</strong>
+        <div class="row" style="margin-top:8px">
+          <input id="goalRole" placeholder="Target role (e.g., Junior Developer, Retail Assistant, Admin)" style="flex:2;min-width:280px" />
+          <button class="btn" id="saveGoal">Save Goal</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="eduSchool" placeholder="School/Institution" style="flex:2;min-width:220px" />
+          <input id="eduQual" placeholder="Qualification (e.g., Matric, Diploma, N6)" style="flex:2;min-width:220px" />
+          <input id="eduYear" type="number" placeholder="Year (e.g., 2024)" style="width:140px" />
+          <button class="btn primary" id="addEdu">Add Education</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="expRole" placeholder="Role (e.g., Cashier, Tutor)" style="flex:2;min-width:220px" />
+          <input id="expOrg" placeholder="Organisation" style="flex:2;min-width:220px" />
+          <input id="expYears" type="number" min="0" step="0.5" placeholder="Years" style="width:140px" />
+          <button class="btn primary" id="addExp">Add Experience</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="skillName" placeholder="Skill (e.g., MS Word, Python, Customer Service)" style="flex:2;min-width:280px" />
+          <select id="skillLevel" style="min-width:160px">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+          <button class="btn primary" id="addSkill">Add Skill</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="extraNote" placeholder="Other info (certificates, volunteer work, languages)" style="flex:1;min-width:280px" />
+          <button class="btn" id="addNote">Add Note</button>
+        </div>
+        <div id="profileTables" style="margin-top:10px"></div>
+        <div class="item" style="margin-top:10px">
+          <h3>Suggested Next Steps</h3>
+          <div id="adviceBox" class="hint">Add your goal + skills to see tailored guidance.</div>
+        </div>
+      `;
+      mount.appendChild(profWrap);
+
+      // === CV Upload Panel ===
       const panel=document.createElement('div'); panel.className='panel';
       panel.innerHTML=`
+        <strong>Upload CV</strong>
         <p>Upload your CV (PDF or DOC). ${USE_REMOTE? 'Stored in Google Drive/Sheet via Apps Script.' : 'Stored <em>locally</em> in this prototype.'}</p>
         <input type="file" id="cvInput" accept=".pdf,.doc,.docx" />
         <div class="row" style="margin-top:8px"> 
@@ -263,7 +404,7 @@
       const chgBtn = document.getElementById('changeMemberName');
       if (chgBtn) chgBtn.onclick = ()=>{ memberName=''; localStorage.removeItem('memberName'); updateSignedInBanner(); openMember(); };
 
-      bindMember(); scrollToDynamic();
+      bindMember(); bindMemberProfile(); renderMemberProfile(); scrollToDynamic();
     }
 
     function bindMember(){
@@ -501,6 +642,8 @@
       // Mapping sanity
       const map={ job:'jobs', opportunity:'opps', bursary:'bursaries', news:'news', event:'events', mentor:'mentors', safety:'safety' };
       Object.entries(map).forEach(([t,k])=>{ console.assert(DATA.sections.some(s=>s.key===k), `Section exists for ${t}`); });
+      // Member profile tests (basic persistence)
+      const p=ensureProfile(); p.skills=[{name:'MS Word',level:'Intermediate'}]; p.education=[{school:'Test High',qual:'Matric',year:2022}]; p.goal='Admin Assistant'; saveProfile(p); const p2=getProfile(); console.assert(p2.goal==='Admin Assistant' && p2.skills.length===1 && p2.education.length===1, 'Profile save/load works');
       // Extra
       const tagRes = filterItems(jobs,'','Retail'); console.assert(tagRes.length===1 && tagRes[0].t.includes('Retail'),'Tag filter should work for Retail');
       console.assert(pct(1,4)===25 && pct(0,0)===0,'pct function basic checks');
