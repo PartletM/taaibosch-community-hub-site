@@ -9,15 +9,12 @@
   <link rel="icon" sizes="16x16" href="favicon-16.png">
   <link rel="manifest" href="manifest.webmanifest">
   <style>
-    :root{
-      --bg:#0b1220; --panel:#0f172a; --brand:#22c55e; --text:#e5e7eb; --muted:#94a3b8; --card:#111827; --shadow:0 10px 25px rgba(0,0,0,.25); --radius:18px; --accent:#24A1FF;
-    }
+    :root{ --bg:#0b1220; --panel:#0f172a; --brand:#22c55e; --text:#e5e7eb; --muted:#94a3b8; --card:#111827; --shadow:0 10px 25px rgba(0,0,0,.25); --radius:18px; --accent:#24A1FF; }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; color:var(--text); background:
       radial-gradient(1200px 600px at 80% -10%, rgba(34,197,94,.15), transparent 60%),
-      radial-gradient(800px 400px at 10% 10%, rgba(59,130,246,.12), transparent 60%),
-      var(--bg); display:flex;flex-direction:column;}
+      radial-gradient(800px 400px at 10% 10%, rgba(59,130,246,.12), transparent 60%), var(--bg); display:flex;flex-direction:column;}
     header{position:sticky;top:0;z-index:20;backdrop-filter: blur(8px);background: linear-gradient(180deg, rgba(11,18,32,.9), rgba(11,18,32,.55));border-bottom: 1px solid rgba(148,163,184,.15);}  
     .wrap{max-width:980px;margin:0 auto;padding:14px 16px}
     .brand{display:flex;align-items:center;gap:12px}
@@ -30,12 +27,13 @@
     .share-btn{padding:12px 14px;border-radius:12px;border:1px solid rgba(148,163,184,.2);background:#0b1324;color:var(--text);cursor:pointer}
     .announcement{background:linear-gradient(90deg, rgba(34,197,94,.18), rgba(34,197,94,.08));border:1px solid rgba(34,197,94,.45);padding:10px 12px;border-radius:12px;margin-top:10px;font-size:14px}
     .hero{margin-top:12px;display:grid;grid-template-columns:1fr;gap:12px}
-    .cta-duo{display:grid;grid-template-columns:1fr;gap:10px}
-    @media(min-width:680px){.cta-duo{grid-template-columns:1fr 1fr}}
+    .cta-trio{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:760px){.cta-trio{grid-template-columns:1fr 1fr 1fr}}
     .btn{border:1px solid rgba(148,163,184,.25);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));color:var(--text);padding:14px 16px;border-radius:14px;cursor:pointer;box-shadow:var(--shadow);font-weight:600;text-align:center}
     .btn:hover{transform:translateY(-1px);border-color:rgba(148,163,184,.45)}
     .btn.primary{background:linear-gradient(180deg, rgba(34,197,94,.22), rgba(34,197,94,.08));border-color:rgba(34,197,94,.55)}
     .btn.accent{background:linear-gradient(180deg, rgba(36,161,255,.22), rgba(36,161,255,.08));border-color:rgba(36,161,255,.55)}
+    .btn.warn{background:linear-gradient(180deg, rgba(244,63,94,.22), rgba(244,63,94,.08));border-color:rgba(244,63,94,.55)}
 
     main{flex:1}
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px}
@@ -67,6 +65,7 @@
 
     footer{border-top:1px solid rgba(148,163,184,.15);color:var(--muted)}
     .hint{font-size:12px;color:#9ca3af}
+    .who{margin-top:6px;text-align:right;color:var(--muted)}
   </style>
 </head>
 <body>
@@ -85,11 +84,13 @@
         <input id="search" type="search" placeholder="Search jobs, events, notices…" autocomplete="off" />
         <button id="shareBtn" class="share-btn" title="Share">Share</button>
       </div>
+      <div id="who" class="who" style="display:none"></div>
       <div class="hero">
         <div id="announcement" class="announcement">📣 Welcome! Pin this link in your WhatsApp group description.</div>
-        <div class="cta-duo">
+        <div class="cta-trio">
           <button class="btn primary" id="btnMember">Community Member</button>
           <button class="btn accent" id="btnStakeholder">Stakeholder</button>
+          <button class="btn warn" id="btnAdmin">Admin</button>
         </div>
       </div>
       <div id="pillbar" class="pillbar"></div>
@@ -109,16 +110,18 @@
   </footer>
 
   <script>
-    // ========================= CONFIG (replace URLs when you deploy Apps Script) =========================
-    const CONFIG = {
-      CV_UPLOAD_URL: '',
-      CV_LIST_URL: '',
-      LISTING_SUBMIT_URL: '',
-      LISTING_LIST_URL: '',
-      LISTING_MOD_URL: ''
-    };
-
+    // ========================= CONFIG =========================
+    const CONFIG = { CV_UPLOAD_URL:'', CV_LIST_URL:'', LISTING_SUBMIT_URL:'', LISTING_LIST_URL:'', LISTING_MOD_URL:'' };
     const USE_REMOTE = !!(CONFIG.CV_UPLOAD_URL && CONFIG.CV_LIST_URL && CONFIG.LISTING_SUBMIT_URL && CONFIG.LISTING_LIST_URL && CONFIG.LISTING_MOD_URL);
+
+    // Stakeholder directory (select before logging in)
+    const STAKEHOLDERS = [
+      'De Beers Group','Eskom','Blouberg Municipality','Capricorn District','Local Businesses','Masete Primary School','Thokampe Secondary School'
+    ];
+
+    // Admin demo creds
+    const ADMIN_USER='admin';
+    const ADMIN_PASS='admin2025!';
 
     // Local CV store keys
     const LS_KEYS = { CV_LIST: 'cvList', MIGRATED: 'cvMigratedSingle' };
@@ -184,6 +187,9 @@
     let query = '';
     let selectedTag = null;
     let stakeholderAuthed = false; // demo login flag
+    let adminAuthed = false;
+    let memberName = localStorage.getItem('memberName') || '';
+    let stakeholderCompany = localStorage.getItem('stakeholderCompany') || '';
 
     // ========================= HELPERS =========================
     const $ = sel => document.querySelector(sel);
@@ -198,8 +204,9 @@
         const a=document.createElement('a'); a.href=`#${key}`; a.className='card'; a.innerHTML=`<div><div class="tag">${tag}</div><div class="title">${title}</div></div><div class="cta">Open →</div>`; a.addEventListener('click',(e)=>{e.preventDefault();setActive(key);}); cards.appendChild(a);
       });
       // quick access bar
-      const duo = document.createElement('div'); duo.className='panel'; duo.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center"><div><strong>Quick Access</strong><div class="sub">Choose a portal below</div></div><div style="display:flex;gap:8px"><button class="btn primary" id="gMember">Community Member</button><button class="btn accent" id="gStakeholder">Stakeholder</button></div></div>`; cards.after(duo);
-      $('#gMember').addEventListener('click', ()=> openMember()); $('#gStakeholder').addEventListener('click', ()=> openStakeholder());
+      const trio = document.createElement('div'); trio.className='panel'; trio.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center"><div><strong>Quick Access</strong><div class="sub">Choose a portal below</div></div><div style="display:flex;gap:8px"><button class="btn primary" id="gMember">Community Member</button><button class="btn accent" id="gStakeholder">Stakeholder</button><button class="btn warn" id="gAdmin">Admin</button></div></div>`; cards.after(trio);
+      $('#gMember').addEventListener('click', ()=> openMember()); $('#gStakeholder').addEventListener('click', ()=> openStakeholder()); $('#gAdmin').addEventListener('click', ()=> openAdmin());
+      updateSignedInBanner();
     }
 
     function setActive(key){ activeKey=key; location.hash=key; renderSection(); const ann=$('#announcement'); if(ann) ann.textContent=`📣 Viewing: ${capitalize(key)}. Use the search bar to find items quickly.`; scrollToDynamic(); }
@@ -215,13 +222,21 @@
     // ========================= MEMBER PORTAL =========================
     function openMember(){
       activeKey='member'; const mount=$('#dynamic'); mount.innerHTML='';
-      const h=document.createElement('h2'); h.textContent='Community Member'; h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
+      const h=document.createElement('h2'); h.textContent='Community Member' + (memberName? ' — '+memberName : ''); h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
+
+      // Member sign-in panel
+      const signin=document.createElement('div'); signin.className='panel';
+      signin.innerHTML = memberName
+        ? `<div class="row" style="align-items:center"><div class="sub">Signed in as <strong>${memberName}</strong></div><button id="changeMemberName" class="btn">Change name</button></div>`
+        : `<div class="row" style="align-items:center"><input id="memberNameInput" placeholder="Enter your name to sign in" style="flex:1;min-width:260px" /><button id="setMemberName" class="btn primary">Sign in</button></div>`;
+      mount.appendChild(signin);
+
       const panel=document.createElement('div'); panel.className='panel';
       panel.innerHTML=`
         <p>Upload your CV (PDF or DOC). ${USE_REMOTE? 'Stored in Google Drive/Sheet via Apps Script.' : 'Stored <em>locally</em> in this prototype.'}</p>
         <input type="file" id="cvInput" accept=".pdf,.doc,.docx" />
         <div class="row" style="margin-top:8px"> 
-          <input id="cvName" placeholder="Your full name" style="flex:1;min-width:220px" />
+          <input id="cvName" placeholder="Your full name" style="flex:1;min-width:220px" value="${memberName}" />
           <input id="cvEmail" placeholder="Email or phone" style="flex:1;min-width:220px" />
         </div>
         <div class="row" style="margin-top:8px">
@@ -241,6 +256,13 @@
         <div class="hint" style="margin-top:6px">By uploading you agree your CV may be visible to verified stakeholders for recruitment.</div>
       `; mount.appendChild(panel);
       const listPanel=document.createElement('div'); listPanel.className='panel'; listPanel.innerHTML=`<strong>My Submissions</strong><div id="mySubs" class="list" style="margin-top:8px"></div>`; mount.appendChild(listPanel);
+
+      // bind name actions
+      const setBtn = document.getElementById('setMemberName');
+      if (setBtn) setBtn.onclick = ()=>{ const v=(document.getElementById('memberNameInput').value||'').trim(); if(!v) return; memberName=v; localStorage.setItem('memberName', v); updateSignedInBanner(); openMember(); };
+      const chgBtn = document.getElementById('changeMemberName');
+      if (chgBtn) chgBtn.onclick = ()=>{ memberName=''; localStorage.removeItem('memberName'); updateSignedInBanner(); openMember(); };
+
       bindMember(); scrollToDynamic();
     }
 
@@ -262,8 +284,61 @@
 
     // ========================= STAKEHOLDER =========================
     function openStakeholder(){
-      activeKey='stakeholder'; const mount=$('#dynamic'); mount.innerHTML=''; const h=document.createElement('h2'); h.textContent='Stakeholder'; h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
-      if(!stakeholderAuthed){ const login=document.createElement('div'); login.className='panel'; login.innerHTML=`<p>Login with provided credentials to view CVs and manage listings.</p><div class="row"><input id="user" placeholder="Username" style="flex:1;min-width:200px" /><input id="pass" placeholder="Password" type="password" style="flex:1;min-width:200px" /><button class="btn accent" id="doLogin">Login</button></div><div class="sub" id="loginMsg" style="margin-top:6px"></div>`; mount.appendChild(login); $('#doLogin').onclick=()=>{ const u=($('#user').value||'').trim(); const p=($('#pass').value||'').trim(); if(u==='stakeholder' && p==='Taaibosch2025!'){ stakeholderAuthed=true; openStakeholder(); } else { $('#loginMsg').textContent='Invalid credentials.'; } }; scrollToDynamic(); return; }
+      activeKey='stakeholder'; const mount=$('#dynamic'); mount.innerHTML=''; const h=document.createElement('h2'); h.textContent='Stakeholder' + (stakeholderAuthed && stakeholderCompany? ' — '+stakeholderCompany : ''); h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
+      if(!stakeholderAuthed){
+        const login=document.createElement('div');
+        login.className='panel';
+        login.innerHTML=`
+          <p>Select your organisation, then sign in.</p>
+          <div class="item" style="margin-bottom:8px">
+            <strong>Choose organisation</strong>
+            <div id="orgList" class="pillbar" style="margin-top:8px"></div>
+          </div>
+          <div class="row">
+            <input id="user" placeholder="Username (use: stakeholder)" value="stakeholder" style="flex:1;min-width:200px" />
+            <input id="pass" placeholder="Password" type="password" style="flex:1;min-width:200px" />
+          </div>
+          <div class="row" style="margin-top:8px">
+            <input id="company" placeholder="Company (auto-filled from selection)" style="flex:1;min-width:220px" readonly />
+            <button class="btn accent" id="doLogin">Login</button>
+          </div>
+          <div class="sub" id="loginMsg" style="margin-top:6px"></div>`;
+        mount.appendChild(login);
+
+        // Build organisation pills
+        const orgList = login.querySelector('#orgList');
+        let selectedOrg = '';
+        STAKEHOLDERS.forEach(name=>{
+          const pill=document.createElement('span');
+          pill.className='pill';
+          pill.textContent=name;
+          pill.onclick=()=>{
+            selectedOrg=name;
+            Array.from(orgList.children).forEach(c=>c.classList.remove('active'));
+            pill.classList.add('active');
+            login.querySelector('#company').value=name;
+          };
+          orgList.appendChild(pill);
+        });
+
+        $('#doLogin').onclick=()=>{
+          const u=($('#user').value||'').trim();
+          const p=($('#pass').value||'').trim();
+          const c=(selectedOrg || ($('#company').value||'').trim());
+          if(u==='stakeholder' && p==='Taaibosch2025!' && c){
+            stakeholderAuthed=true; stakeholderCompany=c;
+            localStorage.setItem('stakeholderCompany', c);
+            updateSignedInBanner();
+            openStakeholder();
+          } else if(!c){
+            $('#loginMsg').textContent='Please choose your organisation above.';
+          } else if(!(u==='stakeholder' && p==='Taaibosch2025!')){
+            $('#loginMsg').textContent='Invalid credentials.';
+          }
+        };
+        scrollToDynamic();
+        return;
+      }
 
       // Dashboard KPIs
       const dash=document.createElement('div'); dash.className='panel'; dash.innerHTML=`<strong>Youth Dashboard</strong><div id="kpis" class="kpis" style="margin-top:8px"></div>`; mount.appendChild(dash);
@@ -290,21 +365,27 @@
         <div id="cvList" class="list" style="margin-top:8px"></div>`; 
       mount.appendChild(cv);
 
-      // Listing management
-      const mgmt=document.createElement('div'); mgmt.className='panel'; mgmt.innerHTML=`<strong>Manage listings</strong><div class="row" style="margin-top:8px"><button class="btn" id="btnAddJob">Add Job</button><button class="btn" id="btnAddOpp">Add Opportunity</button><button class="btn" id="btnAddBur">Add Bursary</button></div><div id="formsWrap" style="margin-top:8px"></div><div id="pendingWrap" style="margin-top:8px"></div>`; mount.appendChild(mgmt);
+      // Listing management (stakeholder submits; admin approves)
+      const mgmt=document.createElement('div'); mgmt.className='panel'; mgmt.innerHTML=`<strong>Submit items for approval</strong><div class="row" style="margin-top:8px"><button class="btn" id="btnAddJob">Job</button><button class="btn" id="btnAddOpp">Opportunity</button><button class="btn" id="btnAddBur">Bursary</button><button class="btn" id="btnAddNews">News</button><button class="btn" id="btnAddEvent">Event</button><button class="btn" id="btnAddMentor">Mentor</button><button class="btn" id="btnAddSafety">Safety</button></div><div id="formsWrap" style="margin-top:8px"></div><div id="pendingWrap" style="margin-top:8px"></div>`; mount.appendChild(mgmt);
 
-      renderDashboard(); bindCVFilters(); bindListingButtons(); loadCVs(); scrollToDynamic();
+      renderDashboard(); bindCVFilters(); bindListingButtons(); renderPending(false); loadCVs(); scrollToDynamic();
     }
 
     // Dashboard helpers
     function computeStats(arr){ const total=arr.length; const skilled=arr.filter(x=>x.skilled).length; const unskilled=total-skilled; const employed=arr.filter(x=>x.employed).length; const unemployed=total-employed; const byRole=groupBy(arr.filter(x=>x.role && x.role!=='—'),'role'); const byQual=groupBy(arr,'qual'); return { total, skilled, unskilled, employed, unemployed, byRole, byQual }; }
     function groupBy(arr,key){ const m=new Map(); arr.forEach(o=>{ const k=o[key]||'Unknown'; m.set(k,(m.get(k)||0)+1); }); return Array.from(m.entries()).sort((a,b)=>b[1]-a[1]); }
     function pct(n,d){ return d? Math.round((n/d)*100):0; }
-    function renderDashboard(){ const k=$('#kpis'), b=$('#barsWrap'); const base=DATA.youth.concat(getLocalCVs().map(m=>({ skilled:!!m.skilled, employed:!!m.employed, role:m.role||'—', qual:m.qual||'Unknown' }))); const S=computeStats(base); k.innerHTML=''; const kpi=(label,n,p)=>{ const d=document.createElement('div'); d.className='kpi'; d.innerHTML=`<div class="n">${n}</div><div class="sub">${label}</div><div class="barwrap" style="margin-top:8px"><div class="bar" style="width:${p}%"></div></div><div class="sub" style="margin-top:4px">${p}%</div>`; return d; }; k.append(kpi('Total Youth', S.total, 100), kpi('Skilled', S.skilled, pct(S.skilled,S.total)), kpi('Unskilled', S.unskilled, pct(S.unskilled,S.total)), kpi('Employed', S.employed, pct(S.employed,S.total)), kpi('Unemployed', S.unemployed, pct(S.unemployed,S.total))); b.innerHTML=''; const makeBarList=(title,entries)=>{ const wrap=document.createElement('div'); wrap.className='item'; const list=entries.slice(0,8); let html=`<h3>${title}</h3>`; list.forEach(([name,count])=>{ const width=pct(count,S.total); html+=`<div class="row" style="align-items:center;gap:8px"><div style="width:160px">${name}</div><div class="barwrap" style="flex:1"><div class="bar" style="width:${width}%"></div></div><div style="width:40px;text-align:right">${count}</div></div>`; }); wrap.innerHTML=html; return wrap; }; b.append(makeBarList('Top Roles', S.byRole), makeBarList('Qualifications', S.byQual)); }
+    function renderDashboard(){ updateSignedInBanner(); const k=$('#kpis'), b=$('#barsWrap'); const base=DATA.youth.concat(getLocalCVs().map(m=>({ skilled:!!m.skilled, employed:!!m.employed, role:m.role||'—', qual:m.qual||'Unknown' }))); const S=computeStats(base); k.innerHTML=''; const kpi=(label,n,p)=>{ const d=document.createElement('div'); d.className='kpi'; d.innerHTML=`<div class="n">${n}</div><div class="sub">${label}</div><div class="barwrap" style="margin-top:8px"><div class="bar" style="width:${p}%"></div></div><div class="sub" style="margin-top:4px">${p}%</div>`; return d; }; k.append(kpi('Total Youth', S.total, 100), kpi('Skilled', S.skilled, pct(S.skilled,S.total)), kpi('Unskilled', S.unskilled, pct(S.unskilled,S.total)), kpi('Employed', S.employed, pct(S.employed,S.total)), kpi('Unemployed', S.unemployed, pct(S.unemployed,S.total))); b.innerHTML=''; const makeBarList=(title,entries)=>{ const wrap=document.createElement('div'); wrap.className='item'; const list=entries.slice(0,8); let html=`<h3>${title}</h3>`; list.forEach(([name,count])=>{ const width=pct(count,S.total); html+=`<div class="row" style="align-items:center;gap:8px"><div style="width:160px">${name}</div><div class="barwrap" style="flex:1"><div class="bar" style="width:${width}%"></div></div><div style="width:40px;text-align:right">${count}</div></div>`; }); wrap.innerHTML=html; return wrap; }; b.append(makeBarList('Top Roles', S.byRole), makeBarList('Qualifications', S.byQual)); }
 
     // CVs
     async function loadCVs(){
-      const listEl=$('#cvList'); const countsEl=$('#cvCounts'); const qRole=($('#fRole')?.value||'').toLowerCase().trim(); const qSkill=$('#fSkill')?.value||''; const qEmp=$('#fEmp')?.value||''; const qQual=$('#fQual')?.value||'';
+      const listEl=$('#cvList'); const countsEl=$('#cvCounts'); 
+      const roleEl=document.getElementById('fRole'); const skillEl=document.getElementById('fSkill'); const empEl=document.getElementById('fEmp'); const qualEl=document.getElementById('fQual');
+      const qRole=((roleEl && roleEl.value) || '').toLowerCase().trim();
+      const qSkill=(skillEl && skillEl.value) || '';
+      const qEmp=(empEl && empEl.value) || '';
+      const qQual=(qualEl && qualEl.value) || '';
+
       let rows=[];
       if(USE_REMOTE){
         try{ const res=await fetch(CONFIG.CV_LIST_URL); rows=await res.json(); }catch(e){ listEl.innerHTML='<div class="item"><p>Could not load CVs.</p></div>'; return; }
@@ -312,7 +393,7 @@
         rows=getLocalCVs();
       }
       // build qualification options fresh each time
-      const qualSel=$('#fQual'); if(qualSel){ const options=['', ...Array.from(new Set(rows.map(r=>r.qual).filter(Boolean)))]; qualSel.innerHTML=''; options.forEach(q=>{ const opt=document.createElement('option'); opt.value=q; opt.textContent=q? q : 'All qualifications'; qualSel.appendChild(opt); }); qualSel.value=qQual; }
+      if(qualEl){ const options=['', ...Array.from(new Set(rows.map(r=>r.qual).filter(Boolean)))]; qualEl.innerHTML=''; options.forEach(q=>{ const opt=document.createElement('option'); opt.value=q; opt.textContent=q? q : 'All qualifications'; qualEl.appendChild(opt); }); qualEl.value=qQual; }
 
       // filter
       const filtered=rows.filter(r=>{
@@ -334,47 +415,111 @@
 
     function bindCVFilters(){ ['fSkill','fEmp','fRole','fQual'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.addEventListener('input', loadCVs); el.addEventListener('change', loadCVs);} }); }
 
-    // Listings: forms + Approve→Publish
-    function bindListingButtons(){ $('#btnAddJob').onclick=()=> openListingForm('job'); $('#btnAddOpp').onclick=()=> openListingForm('opportunity'); $('#btnAddBur').onclick=()=> openListingForm('bursary'); renderPending(); }
+    // Listings: forms + Admin Approve→Publish
+    function bindListingButtons(){
+      $('#btnAddJob').onclick=()=> openListingForm('job');
+      $('#btnAddOpp').onclick=()=> openListingForm('opportunity');
+      $('#btnAddBur').onclick=()=> openListingForm('bursary');
+      $('#btnAddNews').onclick=()=> openListingForm('news');
+      $('#btnAddEvent').onclick=()=> openListingForm('event');
+      $('#btnAddMentor').onclick=()=> openListingForm('mentor');
+      $('#btnAddSafety').onclick=()=> openListingForm('safety');
+      renderPending(false);
+    }
 
-    function openListingForm(type){ const wrap=$('#formsWrap'); const Title=type==='job'?'Job':(type==='opportunity'?'Opportunity':'Bursary'); wrap.innerHTML=`<div class="item"><h3>Add ${Title}</h3><div class="row"><input id="f_title" placeholder="Title" style="flex:1;min-width:220px" /><input id="f_deadline" placeholder="Deadline (YYYY-MM-DD)" style="flex:1;min-width:220px" /></div><div class="row"><input id="f_contact" placeholder="Contact (email/phone)" style="flex:1;min-width:220px" /><input id="f_link" placeholder="Link (optional)" style="flex:1;min-width:220px" /></div><textarea id="f_desc" placeholder="Short description" rows="3" style="width:100%;margin-top:8px"></textarea><div class="row" style="margin-top:8px"><input id="f_tags" placeholder="Tags (comma-separated)" style="flex:1;min-width:220px" /></div><div class="row" style="margin-top:8px"><button class="btn primary" id="submitListing">Submit for Approval</button><div id="formMsg" class="sub"></div></div></div>`; $('#submitListing').onclick=()=> submitListing(type); }
+    function openListingForm(type){ const wrap=$('#formsWrap'); const Title={job:'Job',opportunity:'Opportunity',bursary:'Bursary',news:'News',event:'Event',mentor:'Mentor',safety:'Safety'}[type]||'Item'; wrap.innerHTML=`<div class="item"><h3>Submit ${Title}</h3><div class="row"><input id="f_title" placeholder="Title" style="flex:1;min-width:220px" /><input id="f_deadline" placeholder="Deadline (YYYY-MM-DD) — optional" style="flex:1;min-width:220px" /></div><div class="row"><input id="f_contact" placeholder="Contact (email/phone)" style="flex:1;min-width:220px" /><input id="f_link" placeholder="Link (optional)" style="flex:1;min-width:220px" /></div><textarea id="f_desc" placeholder="Short description" rows="3" style="width:100%;margin-top:8px"></textarea><div class="row" style="margin-top:8px"><input id="f_tags" placeholder="Tags (comma-separated)" style="flex:1;min-width:220px" /></div><div class="row" style="margin-top:8px"><button class="btn primary" id="submitListing">Submit for Admin Approval</button><div id="formMsg" class="sub"></div></div></div>`; $('#submitListing').onclick=()=> submitListing(type); }
 
     function validateListing(p){ if(!p.title || !p.desc || !p.contact) return 'Title, description, and contact are required.'; if(p.deadline && !/^\d{4}-\d{2}-\d{2}$/.test(p.deadline)) return 'Deadline must be YYYY-MM-DD'; return ''; }
 
-    async function submitListing(type){ const p={ type, title:($('#f_title').value||'').trim(), desc:($('#f_desc').value||'').trim(), contact:($('#f_contact').value||'').trim(), deadline:($('#f_deadline').value||'').trim(), link:($('#f_link').value||'').trim(), tags:($('#f_tags').value||'').split(',').map(s=>s.trim()).filter(Boolean) }; const msg=$('#formMsg'); const err=validateListing(p); if(err){ msg.textContent=err; return; }
-      if(USE_REMOTE){ try{ const res=await fetch(CONFIG.LISTING_SUBMIT_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p)}); if(!res.ok) throw new Error('Network'); msg.textContent='Submitted for approval.'; }catch(e){ msg.textContent='Submit failed.'; } }
-      else{ const arr=JSON.parse(localStorage.getItem('pendingListings')||'[]'); arr.push({ ...p, id:'l_'+Date.now() }); localStorage.setItem('pendingListings', JSON.stringify(arr)); msg.textContent='Submitted (demo).'; renderPending(); }
+    async function submitListing(type){ const p={ type, title:($('#f_title').value||'').trim(), desc:($('#f_desc').value||'').trim(), contact:($('#f_contact').value||'').trim(), deadline:($('#f_deadline').value||'').trim(), link:($('#f_link').value||'').trim(), tags:($('#f_tags').value||'').split(',').map(s=>s.trim()).filter(Boolean), org: stakeholderCompany || 'Unknown Org' }; const msg=$('#formMsg'); const err=validateListing(p); if(err){ msg.textContent=err; return; }
+      if(USE_REMOTE){ try{ const res=await fetch(CONFIG.LISTING_SUBMIT_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p)}); if(!res.ok) throw new Error('Network'); msg.textContent='Submitted for admin approval.'; }catch(e){ msg.textContent='Submit failed.'; } }
+      else{ const arr=JSON.parse(localStorage.getItem('pendingListings')||'[]'); arr.push({ ...p, id:'l_'+Date.now() }); localStorage.setItem('pendingListings', JSON.stringify(arr)); msg.textContent='Submitted (awaiting admin).'; renderPending(false); }
     }
 
-    function renderPending(){ const wrap=$('#pendingWrap'); const pending = USE_REMOTE? [] : JSON.parse(localStorage.getItem('pendingListings')||'[]'); const approved = USE_REMOTE? [] : JSON.parse(localStorage.getItem('approvedListings')||'[]'); let html=`<div class="item"><h3>Pending Approval</h3>`; if(!USE_REMOTE && !pending.length) html += '<p class="hint">No pending items.</p>'; pending.forEach(p=>{ html+=renderListingRow(p,true); }); html+='</div>'; html+=`<div class="item" style="margin-top:8px"><h3>Published</h3>`; if(!USE_REMOTE && !approved.length) html+='<p class="hint">No published items yet.</p>'; approved.forEach(p=>{ html+=renderListingRow(p,false); }); html+='</div>'; wrap.innerHTML=html; if(!USE_REMOTE){ pending.forEach(p=>{ const a=$(`#approve_${p.id}`); if(a) a.onclick=()=> approveListing(p.id); const r=$(`#reject_${p.id}`); if(r) r.onclick=()=> rejectListing(p.id); }); }
+    function renderPending(isAdmin){ const wrap=$('#pendingWrap'); const pending = USE_REMOTE? [] : JSON.parse(localStorage.getItem('pendingListings')||'[]'); const approved = USE_REMOTE? [] : JSON.parse(localStorage.getItem('approvedListings')||'[]'); let html=`<div class="item"><h3>Pending ${isAdmin? '— Approve or Reject':'(awaiting admin)'}</h3>`; if(!USE_REMOTE && !pending.length) html += '<p class="hint">No pending items.</p>'; pending.forEach(p=>{ html+=renderListingRow(p,isAdmin); }); html+='</div>'; html+=`<div class="item" style="margin-top:8px"><h3>Published</h3>`; if(!USE_REMOTE && !approved.length) html+='<p class="hint">No published items yet.</p>'; approved.forEach(p=>{ html+=renderListingRow(p,false); }); html+='</div>'; wrap.innerHTML=html; if(isAdmin && !USE_REMOTE){ pending.forEach(p=>{ const a=$(`#approve_${p.id}`); if(a) a.onclick=()=> approveListing(p.id); const r=$(`#reject_${p.id}`); if(r) r.onclick=()=> rejectListing(p.id); }); }
     }
 
-    function renderListingRow(p,isPending){ const tag=p.tags && p.tags.length? (' · '+p.tags.join(', ')) : ''; return `<div class="row" style="align-items:flex-start;gap:8px"><div style="flex:1"><strong>${p.title}</strong><div class="hint">${p.type.toUpperCase()}${tag}</div><div>${p.desc}</div><div class="hint">Contact: ${p.contact}${p.deadline? ' · Deadline: '+p.deadline : ''}</div></div><div style="display:flex;gap:6px">${isPending? `<button class="btn primary" id="approve_${p.id}">Approve</button><button class="btn" id="reject_${p.id}">Reject</button>` : ''}</div></div>`; }
+    function renderListingRow(p,canAct){ const tag=p.tags && p.tags.length? (' · '+p.tags.join(', ')) : ''; const org=p.org? ` · <span class="hint">${p.org}</span>`:''; return `<div class="row" style="align-items:flex-start;gap:8px"><div style="flex:1"><strong>${p.title}</strong><div class="hint">${p.type.toUpperCase()}${tag}${org}</div><div>${p.desc}</div><div class="hint">Contact: ${p.contact}${p.deadline? ' · Deadline: '+p.deadline : ''}${p.link? ' · <a href=\"'+p.link+'\" target=\"_blank\">Link</a>':''}</div></div><div style="display:flex;gap:6px">${canAct? `<button class="btn primary" id="approve_${p.id}">Approve</button><button class="btn" id="reject_${p.id}">Reject</button>` : ''}</div></div>`; }
 
-    function approveListing(id){ const pending=JSON.parse(localStorage.getItem('pendingListings')||'[]'); const approved=JSON.parse(localStorage.getItem('approvedListings')||'[]'); const idx=pending.findIndex(x=>x.id===id); if(idx>-1){ const [p]=pending.splice(idx,1); approved.push(p); localStorage.setItem('pendingListings', JSON.stringify(pending)); localStorage.setItem('approvedListings', JSON.stringify(approved)); mergeApprovedIntoSections(); renderPending(); } }
-    function rejectListing(id){ const pending=JSON.parse(localStorage.getItem('pendingListings')||'[]'); const idx=pending.findIndex(x=>x.id===id); if(idx>-1){ pending.splice(idx,1); localStorage.setItem('pendingListings', JSON.stringify(pending)); renderPending(); } }
+    function approveListing(id){ const pending=JSON.parse(localStorage.getItem('pendingListings')||'[]'); const approved=JSON.parse(localStorage.getItem('approvedListings')||'[]'); const idx=pending.findIndex(x=>x.id===id); if(idx>-1){ const [p]=pending.splice(idx,1); approved.push(p); localStorage.setItem('pendingListings', JSON.stringify(pending)); localStorage.setItem('approvedListings', JSON.stringify(approved)); mergeApprovedIntoSections(); const isAdminView = activeKey==='admin'; if(isAdminView) renderPending(true); else renderPending(false); } }
+    function rejectListing(id){ const pending=JSON.parse(localStorage.getItem('pendingListings')||'[]'); const idx=pending.findIndex(x=>x.id===id); if(idx>-1){ pending.splice(idx,1); localStorage.setItem('pendingListings', JSON.stringify(pending)); const isAdminView = activeKey==='admin'; if(isAdminView) renderPending(true); else renderPending(false); } }
 
-    function mergeApprovedIntoSections(){ if(USE_REMOTE) return; const approved=JSON.parse(localStorage.getItem('approvedListings')||'[]'); ['jobs','opps','bursaries'].forEach(k=>{ const sec=DATA.sections.find(s=>s.key===k); if(!sec) return; sec.items = (sec.items||[]).filter(it=>!it._approved); }); approved.forEach(p=>{ const map={ job:'jobs', opportunity:'opps', bursary:'bursaries' }; const k=map[p.type]||'opps'; const sec=DATA.sections.find(s=>s.key===k); if(!sec) return; const item={ t:p.title, d:p.desc + (p.deadline? ` · Deadline: ${p.deadline}`:''), link:p.link||'', tags:p.tags||[], _approved:true }; (sec.items=sec.items||[]).unshift(item); }); }
+    function mergeApprovedIntoSections(){ if(USE_REMOTE) return; const approved=JSON.parse(localStorage.getItem('approvedListings')||'[]'); const map={ job:'jobs', opportunity:'opps', bursary:'bursaries', news:'news', event:'events', mentor:'mentors', safety:'safety' };
+      // Clear previously injected
+      Object.values(map).forEach(k=>{ const sec=DATA.sections.find(s=>s.key===k); if(!sec) return; sec.items = (sec.items||[]).filter(it=>!it._approved); });
+      // Inject approved
+      approved.forEach(p=>{ const k=map[p.type]||'opps'; const sec=DATA.sections.find(s=>s.key===k); if(!sec) return; const item={ t:p.title, d:p.desc + (p.deadline? ` · Deadline: ${p.deadline}`:''), link:p.link||'', tags:p.tags||[], _approved:true }; (sec.items=sec.items||[]).unshift(item); }); }
+
+    // ========================= ADMIN =========================
+    function openAdmin(){
+      activeKey='admin'; const mount=$('#dynamic'); mount.innerHTML=''; const h=document.createElement('h2'); h.textContent='Admin'; h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
+      if(!adminAuthed){ const login=document.createElement('div'); login.className='panel'; login.innerHTML=`<p>Admin login</p><div class="row"><input id="a_user" placeholder="Username" value="admin" style="flex:1;min-width:200px" /><input id="a_pass" placeholder="Password" type="password" style="flex:1;min-width:200px" /></div><div class="row" style="margin-top:8px"><button class="btn warn" id="a_login">Login</button></div><div class="sub" id="a_msg" style="margin-top:6px"></div>`; mount.appendChild(login); $('#a_login').onclick=()=>{ const u=($('#a_user').value||'').trim(); const p=($('#a_pass').value||'').trim(); if(u===ADMIN_USER && p===ADMIN_PASS){ adminAuthed=true; updateSignedInBanner(); openAdmin(); } else { $('#a_msg').textContent='Invalid admin credentials.'; } }; scrollToDynamic(); return; }
+
+      const mgmt=document.createElement('div'); mgmt.className='panel'; mgmt.innerHTML=`<strong>Pending items (global)</strong><div id="pendingWrap" style="margin-top:8px"></div>`; mount.appendChild(mgmt);
+      const pub=document.createElement('div'); pub.className='panel'; pub.innerHTML=`<strong>Published items</strong><div id="publishedWrap" style="margin-top:8px"></div>`; mount.appendChild(pub);
+
+      // Reuse rendering
+      renderPending(true);
+      // Also show published list alone
+      const approved = USE_REMOTE? [] : JSON.parse(localStorage.getItem('approvedListings')||'[]');
+      const publishedWrap = $('#publishedWrap');
+      if(!approved.length){ publishedWrap.innerHTML = '<div class="item"><p class="hint">Nothing published yet.</p></div>'; }
+      else { publishedWrap.innerHTML = approved.map(p=> `<div class="item"><strong>${p.title}</strong><div class="hint">${p.type.toUpperCase()} · ${p.org||'Unknown Org'}</div><div>${p.desc}</div></div>`).join(''); }
+
+      scrollToDynamic();
+    }
 
     // ========================= SECTION RENDERER =========================
-    function renderSection(){ const mount=$('#dynamic'); if(activeKey==='member'){ openMember(); return; } if(activeKey==='stakeholder'){ openStakeholder(); return; }
+    function renderSection(){ const mount=$('#dynamic'); if(activeKey==='member'){ openMember(); return; } if(activeKey==='stakeholder'){ openStakeholder(); return; } if(activeKey==='admin'){ openAdmin(); return; }
       mergeApprovedIntoSections(); const sec=getActiveSection(); renderTagPills(sec); const items=filterItems(sec.items||[], query, selectedTag);
       mount.innerHTML=''; const h=document.createElement('h2'); h.textContent=sec.title; h.style.margin='22px 2px 8px 2px'; h.style.fontSize='18px'; mount.appendChild(h);
       const list=document.createElement('div'); list.className='list'; items.forEach(it=>{ const div=document.createElement('div'); div.className='item'; const linkHTML=it.link? `<a href="${it.link}" target="_blank" rel="noopener">Open link →</a>`:''; div.innerHTML=`<h3>${it.t||''}</h3><p>${it.d||''}</p>${linkHTML}`; list.appendChild(div); }); if(!items.length){ const empty=document.createElement('div'); empty.className='item'; empty.innerHTML='<p>No items yet. Ask an admin to add some here.</p>'; list.appendChild(empty);} mount.appendChild(list);
     }
 
+    function updateSignedInBanner(){ const el=$('#who'); if(!el) return; let text=''; if(adminAuthed){ text = 'Signed in as Admin'; } else if(stakeholderAuthed && stakeholderCompany){ text = `Signed in as Stakeholder: ${stakeholderCompany}`; } else if(memberName){ text = `Signed in as Member: ${memberName}`; } el.textContent = text; el.style.display = text? 'block':'none'; }
+
     // ========================= SHARE & TESTS =========================
     async function doShare(){ const shareBtn=$('#shareBtn'); try{ if(navigator.share){ await navigator.share({ title: document.title, text: 'Taaibosch Community Hub — Youth Updates', url: location.href }); } else { await navigator.clipboard.writeText(location.href); if(shareBtn){ shareBtn.textContent='Link Copied'; setTimeout(()=> shareBtn.textContent='Share', 1600); } } }catch(e){ console.warn(e); } }
 
-    function bindCVFilters(){ ['fSkill','fEmp','fRole','fQual'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.addEventListener('input', loadCVs); el.addEventListener('change', loadCVs);} }); }
-
-    function runTests(){ const jobs=DATA.sections.find(s=>s.key==='jobs').items; const events=DATA.sections.find(s=>s.key==='events').items; console.assert(filterItems(jobs,'admin',null).length===1,'Test: search title (admin) should return 1'); console.assert(filterItems(jobs,'mall',null).length===1,'Test: search desc (mall) should return 1'); console.assert(filterItems(jobs,'', 'Internship').length===1,'Test: tag Internship should return 1'); console.assert(filterItems(jobs,'admin','Internship').length===1,'Test: admin + Internship returns 1'); console.assert(filterItems(events,'nonexistent',null).length===0,'Test: nonexistent query returns 0');
-      // new tests for CV filters & validation
-      const demo=[{skilled:true,employed:false,role:'Dev',qual:'Matric'},{skilled:false,employed:true,role:'Retail',qual:'Diploma'}]; const skilledCount=demo.filter(x=>x.skilled).length; console.assert(skilledCount===1,'CV test: skilled count');
-      const err1=validateListing({title:'x',desc:'',contact:''}); console.assert(!!err1,'Listing validation should fail without desc/contact'); const err2=validateListing({title:'x',desc:'y',contact:'z',deadline:'2025-13-40'}); console.assert(!!err2,'Deadline format invalid'); const err3=validateListing({title:'x',desc:'y',contact:'z',deadline:'2025-10-15'}); console.assert(!err3,'Deadline ok'); }
+    function runTests(){
+      const jobs=DATA.sections.find(s=>s.key==='jobs').items; const events=DATA.sections.find(s=>s.key==='events').items;
+      console.assert(filterItems(jobs,'admin',null).length===1,'Test: search title (admin) should return 1');
+      console.assert(filterItems(jobs,'mall',null).length===1,'Test: search desc (mall) should return 1');
+      console.assert(filterItems(jobs,'', 'Internship').length===1,'Test: tag Internship should return 1');
+      console.assert(filterItems(jobs,'admin','Internship').length===1,'Test: admin + Internship returns 1');
+      console.assert(filterItems(events,'nonexistent',null).length===0,'Test: nonexistent query returns 0');
+      // CV filters & validation tests
+      const demo=[{skilled:true,employed:false,role:'Dev',qual:'Matric'},{skilled:false,employed:true,role:'Retail',qual:'Diploma'}];
+      const skilledCount=demo.filter(x=>x.skilled).length; console.assert(skilledCount===1,'CV test: skilled count');
+      const err1=validateListing({title:'x',desc:'',contact:''}); console.assert(!!err1,'Listing validation should fail without desc/contact');
+      const err2=validateListing({title:'x',desc:'y',contact:'z',deadline:'2025-13-40'}); console.assert(!!err2,'Deadline format invalid');
+      const err3=validateListing({title:'x',desc:'y',contact:'z',deadline:'2025-10-15'}); console.assert(!err3,'Deadline ok');
+      // Stakeholder list sanity
+      console.assert(Array.isArray(STAKEHOLDERS) && STAKEHOLDERS.includes('Eskom') && STAKEHOLDERS.length>=7, 'Stakeholder directory present');
+      // Admin login sanity
+      console.assert(ADMIN_USER==='admin' && ADMIN_PASS==='admin2025!','Admin creds set');
+      // Mapping sanity
+      const map={ job:'jobs', opportunity:'opps', bursary:'bursaries', news:'news', event:'events', mentor:'mentors', safety:'safety' };
+      Object.entries(map).forEach(([t,k])=>{ console.assert(DATA.sections.some(s=>s.key===k), `Section exists for ${t}`); });
+      // Extra
+      const tagRes = filterItems(jobs,'','Retail'); console.assert(tagRes.length===1 && tagRes[0].t.includes('Retail'),'Tag filter should work for Retail');
+      console.assert(pct(1,4)===25 && pct(0,0)===0,'pct function basic checks');
+    }
 
     // ========================= INIT =========================
-    window.addEventListener('DOMContentLoaded', ()=>{ const y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear(); renderCards(); setActive(activeKey); const share=document.getElementById('shareBtn'); if(share) share.addEventListener('click', doShare); const s=document.getElementById('search'); if(s) s.addEventListener('input',(e)=>{ query=(e.target.value||'').toLowerCase().trim(); renderSection(); }); document.getElementById('btnMember').addEventListener('click', ()=> openMember()); document.getElementById('btnStakeholder').addEventListener('click', ()=> openStakeholder()); const params=new URLSearchParams(location.search); if(params.get('test')!=='0'){ try{ runTests(); console.log('%cAll tests passed','color:#22c55e'); }catch(err){ console.error('Test failure', err); } } });
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear();
+      renderCards();
+      setActive(activeKey);
+      const share=document.getElementById('shareBtn'); if(share) share.addEventListener('click', doShare);
+      const s=document.getElementById('search'); if(s) s.addEventListener('input',(e)=>{ query=(e.target.value||'').toLowerCase().trim(); renderSection(); });
+      document.getElementById('btnMember').addEventListener('click', ()=> openMember());
+      document.getElementById('btnStakeholder').addEventListener('click', ()=> openStakeholder());
+      document.getElementById('btnAdmin').addEventListener('click', ()=> openAdmin());
+      updateSignedInBanner();
+      const params=new URLSearchParams(location.search); if(params.get('test')!=='0'){ try{ runTests(); console.log('%cAll tests passed','color:#22c55e'); }catch(err){ console.error('Test failure', err); } }
+    });
+
     window.addEventListener('hashchange', ()=>{ setActive(location.hash.replace('#','')||'news'); });
   </script>
 </body>
